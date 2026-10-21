@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mochila emocional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: portada con la mochila ilustrada y ocho objetos que salen en arco; cada objeto abre su vista (ficha del recurso + herramienta interactiva). Navegación por anclas, una columna en móvil. */
+:root{
+  --bg:#F2F4F5; --surface:#FFFFFF; --soft:#F7F8F9; --ink:#1A1D26; --muted:#5A6070; --line:#DCDFE6; --mixbase:#FFFFFF;
+  --pack:#3E6F8E; --pack-dark:#2D5470; --pack-light:#5B8DAE; --strap:#24435A; --zip:#E8C15A;
+  --red:#E0484D; --yellow:#EDB200; --blue:#3A7FC2; --green:#2E9E68;
+  --calm:#4C8C9A; --rose:#D4628E; --wool:#C8463F; --violet:#7A5CC2; --amber:#E08A1E; --sky:#3C8FB5;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101318; --surface:#191D24; --soft:#151920; --ink:#ECEEF3; --muted:#9BA1B1; --line:#2B2F3A; --mixbase:#191D24;
+  --pack:#4F84A6; --pack-dark:#36627F; --pack-light:#6EA0C2; --strap:#2A4D66; --zip:#F2CD6A;
+  --red:#F0646A; --yellow:#F2C230; --blue:#5B9BDB; --green:#45B981;
+  --calm:#6FB2C0; --rose:#E882AA; --wool:#E0665F; --violet:#9C82E0; --amber:#F0A444; --sky:#5BAED3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101318; --surface:#191D24; --soft:#151920; --ink:#ECEEF3; --muted:#9BA1B1; --line:#2B2F3A; --mixbase:#191D24;
+  --pack:#4F84A6; --pack-dark:#36627F; --pack-light:#6EA0C2; --strap:#2A4D66; --zip:#F2CD6A;
+  --red:#F0646A; --yellow:#F2C230; --blue:#5B9BDB; --green:#45B981;
+  --calm:#6FB2C0; --rose:#E882AA; --wool:#E0665F; --violet:#9C82E0; --amber:#F0A444; --sky:#5BAED3; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font-family:var(--body)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.sub{font:700 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.muted{color:var(--muted)}
+.btn{font:700 15px var(--body);border:0;border-radius:10px;padding:11px 18px;cursor:pointer;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn[disabled]{opacity:.4;cursor:default}
+.chip{font:700 13px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+input[type=text],textarea,select{width:100%;font-size:15px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:70px;line-height:1.4}
+label.f{display:block;font:700 14px var(--body);margin-bottom:6px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.warn{font-size:14px;color:var(--ink);background:color-mix(in srgb,var(--amber) 22%,var(--mixbase));border-radius:8px;padding:8px 10px}
+.ok{font-size:14px;color:var(--muted)}
+.toast{color:var(--muted);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.grid2.wide{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.grid2,.grid2.wide,.grid3{grid-template-columns:1fr}}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);font-size:14px}
+
+/* Cabecera */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.course{font:700 12px var(--body);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;max-width:70ch}
+.top h1{font-size:clamp(34px,6vw,56px);font-weight:800;letter-spacing:-.02em;margin-top:6px}
+.top h1 a{color:inherit;text-decoration:none}
+.lead{color:var(--muted);font-size:17px;max-width:64ch;margin-top:8px}
+
+/* Portada */
+.stage{position:relative;width:100%;max-width:880px;aspect-ratio:1.55/1;margin:0 auto}
+.pack{position:absolute;left:36%;width:28%;bottom:0;border:0;background:none;padding:0;cursor:pointer;border-radius:24px}
+.pack svg{display:block;width:100%;height:auto;overflow:visible}
+.flap{transform-box:fill-box;transform-origin:50% 0%;transition:transform .55s cubic-bezier(.5,0,.2,1)}
+.open .flap{transform:scaleY(-.55)}
+.mouth{transition:opacity .3s}
+.stage:not(.open) .mouth{opacity:0}
+.obj{position:absolute;width:15%;aspect-ratio:1;max-width:100%;border:0;border-radius:18px;cursor:pointer;background:var(--surface);color:var(--ink);
+  box-shadow:0 8px 20px rgb(20 30 45 / .14),0 0 0 1px var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-decoration:none;
+  left:42.5%;top:62%;transform:scale(.2);opacity:0;pointer-events:none;
+  transition:left .65s cubic-bezier(.3,1.25,.5,1),top .65s cubic-bezier(.3,1.25,.5,1),transform .65s cubic-bezier(.3,1.25,.5,1),opacity .3s;transition-delay:var(--d,0s)}
+.open .obj{opacity:1;pointer-events:auto;left:var(--x);top:var(--y);transform:scale(1)}
+.obj:hover{transform:scale(1.07)!important}
+.obj svg{width:52%;height:auto}
+.obj b{font:800 clamp(11px,1.3vw,14px)/1.1 var(--display);text-align:center}
+.obj small{font:700 10px var(--body);color:var(--muted)}
+.stagehint{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+@media (max-width:700px){.stage{display:none}.stagehint{display:none}}
+
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:960px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.cards{grid-template-columns:1fr}}
+.rcard{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:start;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rcard:hover{border-color:var(--c)}
+.rcard .ic{width:52px;height:52px;border-radius:12px;background:color-mix(in srgb,var(--c) 18%,var(--mixbase));display:grid;place-items:center}
+.rcard .ic svg{width:34px;height:34px}
+.rcard .n{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rcard h3{font-size:16px;margin:2px 0}
+.rcard p{font-size:13px;color:var(--muted)}
+
+.story{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px}
+@media (max-width:760px){.story{grid-template-columns:1fr}}
+.story h2{font-size:22px;margin-bottom:8px}
+.story p+p{margin-top:8px}
+blockquote{margin:12px 0 0;border-left:4px solid var(--pack);padding:4px 0 4px 14px;font-size:17px;font-style:italic}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--pack) 16%,var(--mixbase));border-radius:999px;padding:5px 5px 5px 12px;font-size:14px}
+.tag button{width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer}
+
+/* Vista de recurso */
+.nav{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.rhead{border-radius:18px;padding:22px;background:color-mix(in srgb,var(--c) 20%,var(--mixbase));display:grid;grid-template-columns:84px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:560px){.rhead{grid-template-columns:1fr}}
+.rhead .ic{width:84px;height:84px;border-radius:20px;background:var(--surface);display:grid;place-items:center;box-shadow:0 0 0 1px var(--line)}
+.rhead .ic svg{width:56px;height:56px}
+.rhead .n{font:700 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rhead h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.01em;margin:4px 0 6px}
+.rhead .act{font:700 18px var(--display)}
+.rmeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media (max-width:760px){.rmeta{grid-template-columns:1fr}}
+.rmeta div{background:var(--surface);border-radius:12px;padding:12px 14px;font-size:15px}
+.rmeta .sub{margin-bottom:4px}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-title h3{font-size:22px}
+
+/* Moodmeter */
+.mm{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.mm{grid-template-columns:1fr}}
+.board{display:grid;grid-template-columns:20px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 20px;gap:6px}
+.yaxis{writing-mode:vertical-rl;transform:rotate(180deg);font:700 11px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.xaxis{grid-column:2;font:700 11px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.mgrid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px}
+.mgrid.zoom{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.cell{aspect-ratio:1;max-width:100%;border:0;border-radius:4px;cursor:pointer;color:var(--ink);background:color-mix(in srgb,var(--q) var(--p),var(--mixbase));
+  font:700 clamp(8px,1vw,11px)/1.1 var(--body);padding:2px;display:flex;align-items:center;justify-content:center;text-align:center;hyphens:auto;overflow-wrap:anywhere}
+.mgrid.zoom .cell{font-size:13px;border-radius:8px}
+.cell[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:-1px;position:relative;z-index:2}
+.mgrid:not(.zoom) .cell:nth-child(10n+5){margin-right:3px}
+.mgrid:not(.zoom) .cell:nth-child(n+41):nth-child(-n+50){margin-bottom:3px}
+.qchips{display:none}
+@media (max-width:640px){.qchips{display:flex}}
+.qchips .chip[aria-pressed="true"]{background:var(--q);color:#1A1D26;border-color:var(--q)}
+.mmband{border-radius:12px;padding:16px;background:color-mix(in srgb,var(--q) 30%,var(--mixbase))}
+.mmband h3{font-size:clamp(30px,4vw,42px);font-weight:800;margin:2px 0 8px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:700 12px var(--body);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.ruler{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ruler > li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ruler > li:last-child{border-bottom:0}
+.ruler .L{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 15px var(--display);background:var(--ink);color:var(--surface)}
+.ruler h4{font:700 16px var(--display);margin:0 0 2px}
+.ruler p{color:var(--muted);font-size:15px}
+.ruler ul{margin:6px 0 0;padding-left:20px;font-size:15px;display:flex;flex-direction:column;gap:4px}
+.ruler ul li::marker{color:var(--q)}
+.log{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
+.log li{display:grid;grid-template-columns:12px 96px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--q);align-self:center}
+.when{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.log .note{display:block;color:var(--muted);font-size:14px}
+
+/* Pacer */
+.pacer{position:relative;width:min(100%,320px);aspect-ratio:1;margin:0 auto;display:grid;place-items:center}
+.pacer svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.track{fill:none;stroke:var(--line);stroke-width:4}
+.prog{fill:none;stroke:var(--tc,var(--calm));stroke-width:6;stroke-linecap:round}
+.orb{position:absolute;width:82%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--tc,var(--calm)) 55%,var(--mixbase)),color-mix(in srgb,var(--tc,var(--calm)) 20%,var(--mixbase)) 70%);transform:scale(var(--s,.55))}
+.readout{position:relative;text-align:center;padding:0 12%}
+.phase{font:800 clamp(24px,4vw,34px)/1.05 var(--display)}
+.cue{font-size:14px;opacity:.85;min-height:1.4em}
+.cnt{font:700 14px var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.timeline{display:flex;gap:3px;height:26px}
+.timeline div{border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 12px var(--body);color:#1A1D26;white-space:nowrap;overflow:hidden}
+.timeline .in{background:color-mix(in srgb,var(--tc) 70%,var(--mixbase))}
+.timeline .hold{background:color-mix(in srgb,var(--tc) 35%,var(--mixbase));color:var(--ink)}
+.timeline .out{background:color-mix(in srgb,var(--tc) 50%,var(--mixbase))}
+.timeline .now{outline:2px solid var(--ink);outline-offset:1px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:700 13px var(--body);padding:7px 11px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.techs{display:flex;flex-direction:column;gap:8px}
+.tech{text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 14px;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px}
+.tech b{font:700 16px var(--display)}
+.tech span{font:700 13px var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.tech p{grid-column:1/-1;font-size:14px;color:var(--muted)}
+.tech[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+
+/* Un minuto */
+.steps-dots{display:flex;gap:6px}
+.steps-dots i{flex:1;height:6px;border-radius:3px;background:var(--line);display:block}
+.steps-dots i.on{background:var(--c)}
+.minute{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.mstep{font:800 clamp(24px,4vw,34px)/1.1 var(--display);text-align:center;text-wrap:balance}
+.mdesc{text-align:center;color:var(--muted);max-width:52ch;margin:0 auto;font-size:17px}
+.mtimer{text-align:center;font:800 28px var(--display);font-variant-numeric:tabular-nums}
+.body-chips{justify-content:center}
+
+/* Flor */
+.flower svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.petal{cursor:pointer;stroke:var(--surface);stroke-width:3}
+.petal.sel{stroke:var(--ink)}
+.flower text{font:700 13px var(--body);fill:var(--ink);pointer-events:none}
+.wordgroups{display:flex;flex-direction:column;gap:8px}
+.wordgroups .chip{border-color:color-mix(in srgb,var(--q) 60%,var(--line))}
+
+/* Red */
+.net svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto}
+.net .yarn{fill:none;stroke:var(--wool);stroke-width:2.5;stroke-linecap:round;opacity:.85}
+.net .yarn.new{stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.2s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.net .node{cursor:pointer}
+.net .node circle{fill:var(--surface);stroke:var(--wool);stroke-width:3}
+.net .node.sel circle{fill:color-mix(in srgb,var(--wool) 30%,var(--mixbase))}
+.net .node text{font:700 12px var(--body);fill:var(--ink)}
+.net .ball{fill:var(--wool)}
+
+/* CNV */
+.cnv-steps{display:flex;flex-direction:column;gap:14px}
+.cstep{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px}
+.cstep .L{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font:800 16px var(--display);background:color-mix(in srgb,var(--violet) 25%,var(--mixbase))}
+.preview{border-radius:14px;padding:18px;background:color-mix(in srgb,var(--violet) 14%,var(--mixbase));font-size:18px;line-height:1.5}
+.preview .before{text-decoration:line-through;color:var(--muted);font-size:15px;display:block;margin-bottom:8px}
+.preview mark{background:color-mix(in srgb,var(--violet) 30%,var(--mixbase));color:var(--ink);border-radius:4px;padding:0 3px}
+.preview .gap{color:var(--muted);font-style:italic}
+
+/* Rompecabezas */
+.puzzle svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+.piece{stroke:var(--surface);stroke-width:2.5}
+.piece.empty{fill:transparent;stroke:var(--line);stroke-dasharray:6 5}
+.ptext{font:700 12px/1.25 var(--body);color:#1A1D26;display:flex;align-items:center;justify-content:center;text-align:center;height:100%;padding:4px;overflow:hidden}
+.agreements{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:560px){.agreements{grid-template-columns:1fr}}
+
+/* Espacio */
+.plan svg{width:100%;height:auto;display:block;touch-action:none}
+.plan .wall{fill:var(--soft);stroke:var(--ink);stroke-width:3}
+.plan .furn{fill:color-mix(in srgb,var(--muted) 18%,var(--mixbase));stroke:var(--line)}
+.plan .zone{fill:color-mix(in srgb,var(--green) 12%,var(--mixbase));stroke:var(--green);stroke-width:2;stroke-dasharray:8 6}
+.plan text.lab{font:700 11px var(--body);fill:var(--muted)}
+.stk{cursor:grab}
+.stk rect{stroke:var(--surface);stroke-width:2}
+.stk text{font:700 11px var(--body);fill:#1A1D26;pointer-events:none}
+.palette{display:flex;flex-direction:column;gap:12px}
+.palette .chip{border-left:6px solid var(--k)}
+.checks{display:flex;flex-direction:column;gap:6px;list-style:none;margin:0;padding:0}
+.checks li{display:flex;gap:8px;align-items:center;font-size:15px}
+.checks .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--k);display:grid;place-items:center;font-size:13px;color:#1A1D26}
+.checks .done .box{background:var(--k)}
+.kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+details.kit{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+details.kit summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:4px}
+details.kit summary::-webkit-details-marker{display:none}
+details.kit summary b{font:700 16px var(--display)}
+details.kit .mini{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+details.kit .dots{display:inline-flex;gap:3px;margin-left:auto}
+details.kit .dots i{width:9px;height:9px;border-radius:50%;background:var(--q);display:block}
+details.kit ol{margin:10px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+details.kit .say{margin-top:8px;font-style:italic;font-size:14px;border-left:3px solid var(--green);padding-left:10px}
+details.kit .ad{margin-top:6px;font-size:13px;color:var(--muted)}
+
+/* Gafas */
+.case{border-radius:14px;padding:18px;background:var(--surface);border:1px solid var(--line);display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.case svg{width:92px;height:auto;transition:transform .4s}
+.case.on svg{transform:translateY(-4px) rotate(-4deg)}
+.case p{font-size:18px;font-style:italic}
+.lens3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.lens3{grid-template-columns:1fr}}
+.lens{border-radius:14px;padding:14px;background:color-mix(in srgb,var(--sky) 10%,var(--mixbase));display:flex;flex-direction:column;gap:10px;min-width:0}
+.lens h4{font:700 17px var(--display);margin:0}
+.lens .q{font-size:14px;color:var(--muted)}
+.notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.notes li{background:var(--surface);border-radius:8px;padding:6px 6px 6px 10px;font-size:14px;display:flex;justify-content:space-between;gap:6px;align-items:start}
+.notes li button{border:0;background:none;color:var(--muted);cursor:pointer;width:24px;height:24px;flex:none}
+.addrow{display:flex;gap:6px}
+.addrow input{flex:1;min-width:0}
+.addrow button{flex:none}
+.lens .chip{font-size:12px;padding:4px 9px}
+
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.obj,.flap,.mouth{transition:none!important}.net .yarn.new{animation:none;stroke-dashoffset:0}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <p class="course">Curso Educación socioemocional: prácticas pedagógicas para un clima escolar positivo · Pontificia Universidad Católica de Chile</p>
+      <h1><a href="#mochila" id="homelink">Mochila emocional</a></h1>
+    </div>
+  </div>
+  <main id="app" aria-live="polite"></main>
+  <footer>
+    <span>Mochila emocional · Curso Educación socioemocional: prácticas pedagógicas para un clima escolar positivo · Pontificia Universidad Católica de Chile.</span>
+    <span>El Moodmeter se basa en el enfoque RULER (Yale Center for Emotional Intelligence). Lo que escribes se guarda solo en este navegador; nadie más lo ve.</span>
+  </footer>
+</div>
+
+<script>
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmtWhen=iso=>{const d=new Date(iso),t=new Date(),tm=d.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});return d.toDateString()===t.toDateString()?`Hoy ${tm}`:d.toLocaleDateString("es-CL",{day:"numeric",month:"short"})+" "+tm};
+const sgn=n=>(n>0?"+":"−")+Math.abs(n);
+let cleanup=[];
+function onLeave(fn){cleanup.push(fn)}
+
+/* ---------- íconos ---------- */
+const ICON={
+ moodmeter:`<svg viewBox="0 0 60 60"><rect x="5" y="5" width="24" height="24" rx="5" fill="var(--red)"/><rect x="31" y="5" width="24" height="24" rx="5" fill="var(--yellow)"/><rect x="5" y="31" width="24" height="24" rx="5" fill="var(--blue)"/><rect x="31" y="31" width="24" height="24" rx="5" fill="var(--green)"/></svg>`,
+ mindfulness:`<svg viewBox="0 0 60 60"><rect x="22" y="4" width="16" height="9" rx="3" fill="var(--amber)"/><path d="M20 14h20v4c6 3 10 9 10 17 0 11-9 21-20 21S10 46 10 35c0-8 4-14 10-17z" fill="color-mix(in srgb,var(--calm) 30%,var(--mixbase))" stroke="var(--calm)" stroke-width="3"/><circle cx="24" cy="44" r="5" fill="var(--calm)"/><circle cx="35" cy="46" r="4" fill="var(--muted)"/><circle cx="31" cy="38" r="3.5" fill="var(--calm)"/></svg>`,
+ flor:`<svg viewBox="0 0 60 60"><g fill="var(--rose)">${[0,60,120,180,240,300].map(a=>`<ellipse cx="30" cy="14" rx="8" ry="12" transform="rotate(${a} 30 28)"/>`).join("")}</g><circle cx="30" cy="28" r="8" fill="var(--yellow)"/><path d="M30 38v20" stroke="var(--green)" stroke-width="3"/></svg>`,
+ red:`<svg viewBox="0 0 60 60"><circle cx="27" cy="30" r="18" fill="var(--wool)"/><path d="M13 24c8-4 20-4 28 2M11 33c9-3 22-2 31 4M17 44c6-5 15-8 24-6M22 14c-2 10-1 22 5 33" fill="none" stroke="color-mix(in srgb,var(--wool) 55%,var(--ink))" stroke-width="2"/><path d="M44 38c6 4 10 10 12 18" fill="none" stroke="var(--wool)" stroke-width="3" stroke-linecap="round"/></svg>`,
+ cnv:`<svg viewBox="0 0 60 60"><rect x="6" y="14" width="22" height="32" rx="4" transform="rotate(-18 17 30)" fill="var(--blue)"/><rect x="16" y="11" width="22" height="32" rx="4" transform="rotate(-6 27 27)" fill="var(--green)"/><rect x="25" y="11" width="22" height="32" rx="4" transform="rotate(6 36 27)" fill="var(--yellow)"/><rect x="33" y="14" width="22" height="32" rx="4" transform="rotate(18 44 30)" fill="var(--violet)"/></svg>`,
+ normas:`<svg viewBox="0 0 60 60"><path d="M10 14h12c-2-6 2-10 6-10s8 4 6 10h12v12c6-2 10 2 10 6s-4 8-10 6v12H10V36c6 2 10-2 10-6s-4-8-10-6z" fill="var(--amber)"/></svg>`,
+ espacio:`<svg viewBox="0 0 60 60"><circle cx="18" cy="30" r="12" fill="none" stroke="var(--green)" stroke-width="6"/><path d="M30 30h26M46 30v9M53 30v7" stroke="var(--green)" stroke-width="6" stroke-linecap="round"/></svg>`,
+ gafas:`<svg viewBox="0 0 60 60"><circle cx="16" cy="32" r="11" fill="color-mix(in srgb,var(--sky) 25%,var(--mixbase))" stroke="var(--sky)" stroke-width="4"/><circle cx="44" cy="32" r="11" fill="color-mix(in srgb,var(--sky) 25%,var(--mixbase))" stroke="var(--sky)" stroke-width="4"/><path d="M27 31c2-3 4-3 6 0M5 28 2 20M55 28l3-8" stroke="var(--sky)" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`
+};
+
+/* ---------- recursos ---------- */
+const R=[
+ {id:"moodmeter",n:1,c:"var(--blue)",tema:"Reconocer emociones",obj:"Un mapa de colores",act:"«¿Dónde estoy hoy?»",
+  desc:"Ubicar la emoción del momento según su energía y lo agradable que se siente, ponerle un nombre preciso y elegir una estrategia siguiendo los cinco pasos RULER.",
+  mat:"Moodmeter impreso o en pantalla.",apr:"Nombrar con precisión lo que sentimos es el primer paso para regularlo."},
+ {id:"mindfulness",n:2,c:"var(--calm)",tema:"Mindfulness",obj:"Un frasco de la calma",act:"«Un minuto para volver a mí»",
+  desc:"Colocar los pies en el suelo, observar la respiración y reconocer qué se siente en el cuerpo, sin intentar cambiarlo de inmediato. Finalizar con tres respiraciones lentas y una pregunta: ¿qué necesito en este momento?",
+  mat:"Tarjeta con instrucciones y un pequeño frasco simbólico.",apr:"Hacer una pausa antes de responder."},
+ {id:"flor",n:3,c:"var(--rose)",tema:"Flor de las emociones",obj:"Una flor de papel",act:"«Así florecen mis emociones»",
+  desc:"En cada uno de los seis pétalos se escribe una emoción experimentada durante una jornada difícil. En el centro se coloca una necesidad o recurso que ayude a recuperar el equilibrio.",
+  mat:"Flor impresa, colores y lápices.",apr:"Todas las emociones merecen ser reconocidas; lo importante es comprenderlas y aprender a responder."},
+ {id:"red",n:4,c:"var(--wool)",tema:"Creación de vínculos cercanos",obj:"Un hilo de lana",act:"«La red que nos sostiene»",
+  desc:"En círculo, una persona sostiene un ovillo, comparte una acción que la hace sentir escuchada o acompañada en su colegio y lo pasa a otra sin soltar su extremo. Se construye una red visible de apoyo mutuo.",
+  mat:"Ovillo de lana.",apr:"Los vínculos de confianza son una fuente de protección emocional."},
+ {id:"cnv",n:5,c:"var(--violet)",tema:"Comunicación no violenta",obj:"Cuatro tarjetas",act:"«Cambiemos la manera de decirlo»",
+  desc:"Tomar una frase que puede generar tensión y transformarla en cuatro pasos: observación sin juicio, sentimiento, necesidad y petición concreta.",
+  mat:"Tarjetas con los cuatro pasos y situaciones escolares.",apr:"Expresar necesidades sin atacar a las personas."},
+ {id:"normas",n:6,c:"var(--amber)",tema:"Normas consensuadas",obj:"Un pequeño rompecabezas",act:"«Las normas que construimos juntos»",
+  desc:"Identificar una situación frecuente de convivencia y proponer dos acuerdos concretos. Cada integrante aporta una pieza con una acción que está dispuesto a cumplir; al unirlas se representa la responsabilidad compartida.",
+  mat:"Piezas de rompecabezas de cartulina.",apr:"Las normas cobran mayor sentido cuando existe participación y corresponsabilidad."},
+ {id:"espacio",n:7,c:"var(--green)",tema:"Diseño de espacios emocionales",obj:"Una llave",act:"«Un lugar donde me siento seguro»",
+  desc:"Diseñar sobre la silueta del aula un pequeño espacio de bienestar emocional con al menos tres recursos: uno para reconocer emociones, otro para recuperar la calma y otro para solicitar acompañamiento.",
+  mat:"Plano de aula, adhesivos y llave simbólica.",apr:"Los espacios también pueden comunicar acogida, respeto y seguridad."},
+ {id:"gafas",n:8,c:"var(--sky)",tema:"Educación inclusiva",obj:"Unas gafas",act:"«Cambiar la mirada»",
+  desc:"A partir de un caso breve, identificar posibles barreras, necesidades y apoyos sin etiquetar al estudiante. Luego, formular una adaptación concreta para facilitar su participación y aprendizaje.",
+  mat:"Gafas simbólicas y tarjetas con situaciones escolares.",apr:"La inclusión implica reconocer diferencias y ofrecer apoyos según las necesidades."}
+];
+
+/* ---------- Moodmeter: datos ---------- */
+const WORDS=[
+ ["Enfurecido","Aterrado","Estresado","Alterado","Conmocionado","Sorprendido","Animado","Festivo","Eufórico","Extasiado"],
+ ["Lívido","Furioso","Frustrado","Tenso","Atónito","Acelerado","Alegre","Motivado","Inspirado","Exultante"],
+ ["Iracundo","Asustado","Enojado","Nervioso","Inquieto","Con energía","Vivaz","Emocionado","Optimista","Entusiasmado"],
+ ["Angustiado","Aprensivo","Preocupado","Irritado","Fastidiado","Complacido","Enfocado","Feliz","Orgulloso","Encantado"],
+ ["Asqueado","Agobiado","Intranquilo","Incómodo","Molesto","Agradado","Contento","Esperanzado","Juguetón","Dichoso"],
+ ["Disgustado","Abatido","Decepcionado","Bajoneado","Apático","A gusto","Despreocupado","Satisfecho","Amoroso","Pleno"],
+ ["Pesimista","Sombrío","Desanimado","Triste","Aburrido","Calmado","Seguro","Conforme","Agradecido","Conmovido"],
+ ["Aislado","Miserable","Solo","Descorazonado","Cansado","Relajado","Suelto","Descansado","Bendecido","Equilibrado"],
+ ["Desalentado","Deprimido","Hosco","Exhausto","Fatigado","Apacible","Reflexivo","En paz","Cómodo","Libre"],
+ ["Desesperado","Sin esperanza","Desolado","Agotado","Vacío","Somnoliento","Complaciente","Tranquilo","Acogido","Sereno"]];
+const QI={
+ red:{name:"Rojo",sub:"Mucha energía · Desagradable",understand:"Tu cuerpo está en alerta. Suele aparecer cuando algo que te importa se siente amenazado, injusto o fuera de control.",express:"Nómbralo a un colega de confianza: «Estoy frustrada porque…». Evita responder a un estudiante en el pico de la emoción.",
+  self:["Respira 4–6: inhala en 4 tiempos y exhala en 6, cinco veces.","Date 90 segundos antes de responder o sancionar.","Haz «Un minuto para volver a mí» (recurso 2)."],room:["Baja tu volumen y tu ritmo; el grupo te imita.","Da instrucciones cortas, una a la vez.","Haz una pausa activa de 2 minutos con todos."]},
+ yellow:{name:"Amarillo",sub:"Mucha energía · Agradable",understand:"Tienes energía disponible y algo va bien: un logro, un buen grupo, una idea nueva.",express:"Compártelo: reconoce en voz alta lo que salió bien y a quién se debe.",
+  self:["Usa este momento para tareas creativas o difíciles.","Anota qué causó esta emoción para repetirlo.","Cuida no sobrecomprometerte."],room:["Lanza proyectos, debates o trabajo colaborativo.","Canaliza la energía con metas y tiempos claros.","Cierra con una reflexión breve para bajar revoluciones."]},
+ blue:{name:"Azul",sub:"Poca energía · Desagradable",understand:"Tu cuerpo pide pausa o tu ánimo está bajo. Puede venir del cansancio acumulado, una pérdida o una decepción.",express:"Dilo sin juzgarte: «Hoy estoy cansado». Busca a una persona de tu red (recurso 4).",
+  self:["Elige una sola tarea pequeña y alcanzable.","Pide ayuda concreta a un colega.","Si se repite muchos días, habla con alguien de bienestar."],room:["Prefiere actividades de bajo esfuerzo.","Conecta con un estudiante a la vez.","Ajusta las metas del día sin culpa."]},
+ green:{name:"Verde",sub:"Poca energía · Agradable",understand:"Estás en calma y a gusto. Es un estado que favorece pensar con claridad y conectar con otros.",express:"Agradece lo que te trajo aquí. Es buen momento para dar retroalimentación cálida.",
+  self:["Planea, corrige o retroalimenta: tu juicio está claro.","Reflexiona sobre qué funcionó esta semana."],room:["Lectura, escritura reflexiva o conversación uno a uno.","Círculo de diálogo o check-in emocional grupal."]}};
+const QORD=["red","yellow","blue","green"];
+const quadOf=(r,c)=>r<5?(c<5?"red":"yellow"):(c<5?"blue":"green");
+const energy=r=>r<5?5-r:4-r, pleasant=c=>c<5?c-5:c-4;
+const intensity=(r,c)=>Math.max(Math.abs(energy(r)),Math.abs(pleasant(c)));
+const WORDQ={};WORDS.forEach((row,r)=>row.forEach((w,c)=>WORDQ[w.toLowerCase()]=quadOf(r,c)));
+
+/* ---------- Respira: técnicas ---------- */
+const TECH=[
+ {id:"46",name:"Exhalación larga",pat:"4 · 6",tc:"var(--calm)",short:"Exhalar más largo que inhalar activa la respuesta de calma.",phases:[{k:"in",s:4,l:"Inhala",c:"Llena el abdomen despacio",to:1},{k:"out",s:6,l:"Exhala",c:"Como por una pajita",to:.55}]},
+ {id:"sigh",name:"Suspiro fisiológico",pat:"2 + 1 · 6",tc:"var(--red)",short:"Lo más rápido para un pico de estrés.",phases:[{k:"in",s:2,l:"Inhala",c:"Por la nariz",to:.88},{k:"in",s:1,l:"Un poco más",c:"Otra pequeña inhalación",to:1},{k:"out",s:6,l:"Exhala",c:"Largo y completo",to:.55}]},
+ {id:"box",name:"Respiración en caja",pat:"4 · 4 · 4 · 4",tc:"var(--blue)",short:"Cuatro tiempos iguales que ordenan la atención.",phases:[{k:"in",s:4,l:"Inhala",c:"Sube un lado de la caja",to:1},{k:"hold",s:4,l:"Sostén",c:"Pausa suave",to:1},{k:"out",s:4,l:"Exhala",c:"Baja el otro lado",to:.55},{k:"hold",s:4,l:"Sostén",c:"Descansa vacío",to:.55}]},
+ {id:"55",name:"Respiración coherente",pat:"5 · 5",tc:"var(--green)",short:"Ritmo parejo que equilibra el cuerpo.",phases:[{k:"in",s:5,l:"Inhala",c:"Suave y continuo",to:1},{k:"out",s:5,l:"Exhala",c:"Al mismo ritmo",to:.55}]},
+ {id:"flor",name:"Huele la flor, sopla la vela",pat:"3 · 5",tc:"var(--yellow)",short:"Versión con imágenes para hacer con niños.",phases:[{k:"in",s:3,l:"Huele la flor",c:"Inhala por la nariz",to:1},{k:"out",s:5,l:"Sopla la vela",c:"Suave, sin apagarla",to:.55}]},
+ {id:"42",name:"Respiración activadora",pat:"4 · 2",tc:"var(--amber)",short:"Para recuperar algo de energía. Solo 1 o 2 minutos.",phases:[{k:"in",s:4,l:"Inhala",c:"Abre el pecho",to:1},{k:"out",s:2,l:"Exhala",c:"Con decisión",to:.55}]}];
+
+function makePacer(root,opts){
+  root.innerHTML=`<div class="pacer"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="47"/><circle class="prog" cx="50" cy="50" r="47" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg>
+   <div class="orb"></div><div class="readout"><div class="phase">${esc(opts.idle||"Listo")}</div><div class="cue">${esc(opts.idleCue||"")}</div><div class="cnt"></div></div></div>`;
+  const orb=root.querySelector(".orb"),ph=root.querySelector(".phase"),cue=root.querySelector(".cue"),cnt=root.querySelector(".cnt"),prog=root.querySelector(".prog");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let phases=opts.phases,running=false,elapsed=0,last=0,raf=0,idx=-1,from=.55,cycles=0;
+  const L=()=>phases.reduce((a,p)=>a+p.s,0)*1000;
+  const ease=x=>.5-Math.cos(Math.PI*x)/2;
+  function frame(ts){
+    if(!running)return; elapsed+=ts-last; last=ts;
+    const c=Math.floor(elapsed/L());
+    if(c>cycles){cycles=c;opts.onCycle&&opts.onCycle(cycles);
+      if((opts.cycles&&cycles>=opts.cycles)||(opts.ms&&elapsed>=opts.ms())){end();return}}
+    const inC=elapsed%L();let acc=0,i=0;for(;i<phases.length;i++){if(inC<acc+phases[i].s*1000)break;acc+=phases[i].s*1000}
+    const p=phases[i],pr=(inC-acc)/(p.s*1000);
+    if(i!==idx){from=idx===-1?.55:phases[(i-1+phases.length)%phases.length].to;idx=i;ph.textContent=p.l;cue.textContent=p.c;opts.onPhase&&opts.onPhase(i)}
+    const s=from+(p.to-from)*ease(pr);
+    orb.style.setProperty("--s",reduce?(p.to>.8?.85:.65):s.toFixed(4));
+    cnt.textContent=Math.ceil(p.s*(1-pr))+" s"; prog.style.strokeDashoffset=(100-pr*100).toFixed(2);
+    opts.onTick&&opts.onTick(elapsed);
+    raf=requestAnimationFrame(frame);
+  }
+  function end(){running=false;cancelAnimationFrame(raf);orb.style.setProperty("--s",.55);prog.style.strokeDashoffset=0;ph.textContent=opts.doneText||"Listo";cue.textContent=opts.doneCue||"Respira normal un momento";cnt.textContent="";opts.onEnd&&opts.onEnd(cycles)}
+  const api={
+    start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(frame)},
+    pause(){running=false;cancelAnimationFrame(raf);cue.textContent="En pausa"},
+    reset(newPhases){running=false;cancelAnimationFrame(raf);if(newPhases)phases=newPhases;elapsed=0;idx=-1;cycles=0;orb.style.setProperty("--s",.55);prog.style.strokeDashoffset=100;ph.textContent=opts.idle||"Listo";cue.textContent=opts.idleCue||"";cnt.textContent=""},
+    get running(){return running},get cycles(){return cycles},get elapsed(){return elapsed}
+  };
+  onLeave(()=>{running=false;cancelAnimationFrame(raf)});
+  return api;
+}
+
+/* ---------- Caja de calma: técnicas con niños ---------- */
+const TYPES={resp:"Respiración",mov:"Movimiento",sens:"Sensorial",pal:"Pensar y hablar",con:"Conexión",esp:"Espacio"};
+const KIT=[
+ {id:"estrella",name:"Respiración de la estrella",type:"resp",ages:[4,10],mins:2,q:["red","yellow"],sum:"Recorrer con el dedo una mano abierta mientras se respira.",steps:["Abre una mano como estrella de cinco puntas.","Sube por un dedo mientras inhalas.","Baja por el otro lado mientras exhalas.","Recorre los cinco dedos: cinco respiraciones."],say:"Vamos a dibujar una estrella con nuestra respiración.",adapt:"Con los pequeños, cuenta en voz alta los dedos."},
+ {id:"tortuga",name:"La tortuga",type:"pal",ages:[3,8],mins:3,q:["red"],sum:"Meterse en el caparazón para pensar antes de actuar.",steps:["Cuenta la historia de una tortuga que aprende a meterse en su caparazón.","Practiquen: brazos cruzados, cabeza abajo.","Dentro, respiran tres veces despacio.","Al salir piensan: ¿qué puedo hacer ahora?"],say:"Cuando el enojo te suba, haz como la tortuga: entra, respira y sal cuando estés listo.",adapt:"Practíquenla en días tranquilos; en un conflicto basta decir «¡tortuga!»."},
+ {id:"semaforo",name:"El semáforo",type:"pal",ages:[5,12],mins:3,q:["red"],sum:"Rojo para parar, amarillo para pensar y verde para actuar.",steps:["Rojo: paro y respiro.","Amarillo: ¿qué siento? ¿Qué puedo hacer? Busco dos opciones.","Verde: elijo la opción que no lastima a nadie.","Revisamos: ¿funcionó?"],say:"Estamos en rojo: paramos y respiramos.",adapt:"Con los mayores, escriban opciones en el pizarrón."},
+ {id:"espagueti",name:"Espagueti crudo y cocido",type:"mov",ages:[3,10],mins:2,q:["red","yellow"],sum:"Tensar todo el cuerpo y luego soltarlo.",steps:["Cuerpo duro como espagueti crudo.","Apretamos todo 5 segundos.","Nos vamos cocinando y ablandando.","Quedamos flojitos. Repetimos 3 veces."],say:"¡Somos espaguetis crudos, duros, duros! Ahora caemos a la olla…",adapt:"Con los mayores, recorran una parte del cuerpo a la vez."},
+ {id:"sentidos",name:"5-4-3-2-1 de los sentidos",type:"sens",ages:[7,12],mins:3,q:["red"],sum:"Nombrar lo que se ve, toca, oye, huele y saborea.",steps:["5 cosas que ves.","4 que puedes tocar.","3 sonidos.","2 olores.","1 sabor."],say:"Vamos a usar los sentidos para volver aquí.",adapt:"Ideal antes de evaluaciones."},
+ {id:"frasco",name:"Frasco de la calma",type:"sens",ages:[3,8],mins:2,q:["red","yellow"],sum:"Agitar un frasco con escarcha y mirarla asentarse.",steps:["Agita el frasco: así está la mente cuando estamos alterados.","Déjalo quieto y miren la escarcha caer.","Mientras cae, respiramos despacio.","Cuando el agua está clara: ¿cómo me siento?"],say:"Si respiramos y esperamos, los pensamientos se van al fondo.",adapt:"Fabricarlo juntos es una buena actividad para un día verde."},
+ {id:"sacudir",name:"Sacudida 5-4-3-2-1",type:"mov",ages:[3,12],mins:1,q:["blue","yellow"],sum:"Sacudir manos y pies contando hacia atrás.",steps:["Sacudimos la mano derecha 5 veces.","Luego la izquierda y cada pie.","Repetimos con 4, 3, 2 y 1.","Brazos arriba y una respiración profunda."],say:"¡Cinco, cuatro, tres, dos, uno!",adapt:"Para calmar, termina lento; para activar, con un salto."},
+ {id:"estatuas",name:"Baile de las estatuas",type:"mov",ages:[3,8],mins:3,q:["yellow","blue"],sum:"Bailar y congelarse cuando para la música.",steps:["Pon música y todos bailan.","Al pausar, todos son estatuas.","Cada ronda la música es más lenta.","Termina en estatua dormida, sentados."],say:"Cuando pare la música, somos estatuas.",adapt:"Con los grandes: estatuas de emociones."},
+ {id:"oso",name:"El oso lento",type:"mov",ages:[4,10],mins:3,q:["yellow","red"],sum:"Moverse en cámara lenta como un oso que despierta.",steps:["Somos osos dormidos.","Despertamos estirando una pata, luego otra.","Nos movemos en cámara lenta.","Volvemos a la cueva y respiramos tres veces."],say:"Los osos se despiertan muy, muy despacio.",adapt:"En espacios pequeños, solo brazos y cabeza."},
+ {id:"mariposa",name:"Abrazo de mariposa",type:"sens",ages:[5,12],mins:2,q:["red","blue"],sum:"Brazos cruzados sobre el pecho y golpecitos alternados.",steps:["Cruza los brazos: tus manos son alas.","Golpecitos suaves alternados.","Respira despacio.","Sigue un minuto o hasta sentirte mejor."],say:"Deja que la mariposa aletee suave.",adapt:"Ojos abiertos o cerrados, ambas opciones están bien."},
+ {id:"cerebro",name:"El cerebro en la mano",type:"pal",ages:[7,12],mins:5,q:["green"],sum:"Modelo de la mano para explicar cuando «perdemos la tapa».",steps:["La palma y muñeca: la parte que nos protege.","El pulgar al centro: las emociones grandes.","Los dedos encima: la parte que piensa.","Dedos arriba de golpe: nos destapamos.","Bajarlos despacio respirando: volvemos a pensar."],say:"Cuando nos destapamos no somos malos: la parte que piensa se desconectó.",adapt:"La mano abierta puede ser la señal de «estoy destapado»."},
+ {id:"checkin",name:"Check-in de colores",type:"con",ages:[5,12],mins:3,q:["green","blue","yellow","red"],sum:"Cada estudiante señala su color al empezar el día.",steps:["Al entrar, cada uno marca su color.","Quien quiera dice una palabra.","La docente observa sin juzgar.","Se elige una estrategia según el color que más aparece."],say:"No hay colores buenos ni malos. ¿Cómo llegaste hoy?",adapt:"Con los mayores, pidan la palabra exacta del Moodmeter."},
+ {id:"campana",name:"Escucha la campana",type:"sens",ages:[4,12],mins:1,q:["yellow","green"],sum:"Escuchar un sonido hasta que desaparece.",steps:["Ojos cerrados o mirada al piso.","Toca la campana.","Escuchan hasta que no se oiga nada.","Al dejar de oírla, levantan la mano."],say:"Cuando ya no lo oigas, levanta la mano.",adapt:"Úsala como señal fija de inicio o cierre."},
+ {id:"raton",name:"Voz de ratón, voz de león",type:"con",ages:[3,7],mins:2,q:["yellow"],sum:"Jugar con el volumen de la voz.",steps:["Una frase con voz de león.","La misma con voz mediana.","Luego con voz de ratón.","Siguen la clase en voz de ratón."],say:"¿Quién puede hablar tan bajito como un ratón?",adapt:"Un cartel con los tres animales para señalar el volumen."},
+ {id:"gratitud",name:"Tres cosas buenas",type:"pal",ages:[6,12],mins:5,q:["blue","green"],sum:"Recordar y compartir tres cosas buenas del día.",steps:["Piensan en tres cosas buenas, aunque sean pequeñas.","Las escriben o dibujan.","Quien quiera comparte una.","¿Cómo me siento después?"],say:"Puede ser algo muy chiquito: todo cuenta.",adapt:"Con los menores, una sola cosa dibujada."},
+ {id:"garabato",name:"Garabato de la emoción",type:"sens",ages:[4,12],mins:5,q:["red","blue"],sum:"Dibujar libremente cómo se siente la emoción.",steps:["Piensa cómo te sientes.","Elige el color de esa emoción.","Dibuja cómo se mueve.","Ponle un nombre si quieres."],say:"No tiene que ser bonito: deja salir la emoción.",adapt:"Pueden arrugar el del enojo o guardar el de la alegría."},
+ {id:"rincon",name:"Rincón de la calma",type:"esp",ages:[3,12],mins:null,q:["red","blue"],sum:"Un espacio fijo al que cualquiera puede ir a regularse.",steps:["Elijan juntos un lugar y pónganle nombre.","Coloquen frasco, tarjetas, colores, cojín.","Acuerden: se va a calmarse, por poco tiempo, y se vuelve.","Al volver: ¿cómo estás ahora?"],say:"El rincón es para cuidarnos, no para castigarnos.",adapt:"Reloj de arena de 3 a 5 minutos."},
+ {id:"rueda",name:"Rueda de opciones",type:"pal",ages:[6,12],mins:null,q:["red","yellow"],sum:"Una rueda con estrategias para elegir ante un problema.",steps:["Constrúyanla juntos.","Cuélguenla a la vista.","Ante un problema, el estudiante elige una opción.","Revisan si ayudó."],say:"¿Qué opción de la rueda te puede ayudar? Tú eliges.",adapt:"Incluyan respirar, tomar agua, pedir ayuda, ir al rincón."}];
+
+/* ---------- Portada ---------- */
+function viewHome(app){
+  const own=store.get("mochila-propia",null);
+  const pos=[[2,62],[5,34],[17,8],[34,0],[51,0],[68,8],[80,34],[83,62]].map(([x,y])=>({x,y}));
+  app.innerHTML=`
+   <p class="lead">Todos llevamos una mochila. Adentro van las emociones del día y también las herramientas para cuidarlas. Toca un objeto para sacarlo y trabajar con él.</p>
+   <div>
+     <div class="stage open" id="stage">
+       ${R.map((r,i)=>`<a class="obj" href="#${r.id}" style="--x:${pos[i].x.toFixed(1)}%;--y:${Math.max(0,pos[i].y).toFixed(1)}%;--d:${(i*.05).toFixed(2)}s"><small>${r.n}</small>${ICON[r.id]}<b>${({moodmeter:"Moodmeter",mindfulness:"Mindfulness",flor:"Flor de emociones",red:"Vínculos",cnv:"Comunicación no violenta",normas:"Normas",espacio:"Espacios",gafas:"Inclusión"})[r.id]}</b></a>`).join("")}
+       <button class="pack" id="pack" aria-expanded="true" aria-label="Cerrar la mochila">
+         <svg viewBox="0 0 300 300" aria-hidden="true">
+           <path d="M118 52c0-26 64-26 64 0" fill="none" stroke="var(--strap)" stroke-width="12" stroke-linecap="round"/>
+           <rect x="22" y="110" width="26" height="130" rx="13" fill="var(--strap)"/><rect x="252" y="110" width="26" height="130" rx="13" fill="var(--strap)"/>
+           <path d="M40 110c0-40 30-62 110-62s110 22 110 62v150c0 18-14 32-32 32H72c-18 0-32-14-32-32z" fill="var(--pack)"/>
+           <ellipse class="mouth" cx="150" cy="66" rx="92" ry="16" fill="var(--pack-dark)"/>
+           <g class="flap"><path d="M44 74c10-22 44-30 106-30s96 8 106 30v52c0 10-8 16-18 16H62c-10 0-18-6-18-16z" fill="var(--pack-light)"/><rect x="132" y="118" width="36" height="20" rx="6" fill="var(--zip)"/></g>
+           <rect x="78" y="176" width="144" height="92" rx="20" fill="var(--pack-dark)"/>
+           <path d="M92 196h116" stroke="var(--zip)" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 7"/>
+           <circle cx="150" cy="236" r="16" fill="var(--red)"/><path d="M143 236a7 7 0 0 0 14 0" fill="none" stroke="var(--surface)" stroke-width="3" stroke-linecap="round"/><circle cx="145" cy="230" r="2" fill="var(--surface)"/><circle cx="155" cy="230" r="2" fill="var(--surface)"/>
+         </svg>
+       </button>
+     </div>
+     <p class="stagehint" id="hint">Toca la mochila para guardar los objetos y volver a sacarlos</p>
+   </div>
+   <section>
+     <p class="sub">Los ocho recursos</p>
+     <div class="cards">${R.map(r=>`<a class="rcard" href="#${r.id}" style="--c:${r.c}"><span class="ic">${ICON[r.id]}</span><span><span class="n">${r.n} · ${esc(r.obj)}</span><h3>${esc(r.tema)}</h3><p>${esc(r.act)}</p></span></a>`).join("")}</div>
+   </section>
+   <section class="panel story">
+     <div>
+       <h2>La analogía de la mochila</h2>
+       <p>Cada mañana llegamos al colegio con una mochila invisible. A veces viene liviana y a veces pesa: una mala noche, una conversación difícil, la alegría de un logro. Lo mismo les pasa a nuestros estudiantes y colegas.</p>
+       <p>No se trata de vaciarla ni de fingir que no pesa. Se trata de saber qué hay dentro y de tener a mano herramientas para cuidarnos y cuidar el clima del aula. Mientras más las usamos, más fácil es encontrarlas.</p>
+       <blockquote>«Hoy mi mochila pesa un poco. ¿Qué herramienta puedo sacar?»</blockquote>
+     </div>
+     <div>
+       <h2>¿Qué más llevas tú?</h2>
+       <form id="ownf" class="row" style="margin-bottom:12px">
+         <label for="owni" class="sub" style="width:100%;margin:0">Agrega una herramienta propia</label>
+         <input type="text" id="owni" maxlength="40" placeholder="Ej.: Escuchar mi canción favorita" style="flex:1;min-width:0;width:auto">
+         <button class="btn" type="submit">Agregar</button>
+       </form>
+       <div class="tags" id="owntags"></div>
+       <p class="muted" style="font-size:13px;margin-top:10px" id="ownnote"></p>
+     </div>
+   </section>`;
+  let open=true;
+  $("#pack").onclick=()=>{open=!open;$("#stage").classList.toggle("open",open);$("#pack").setAttribute("aria-expanded",open);$("#pack").setAttribute("aria-label",open?"Cerrar la mochila":"Abrir la mochila");$("#hint").textContent=open?"Toca la mochila para guardar los objetos y volver a sacarlos":"Toca la mochila para abrirla"};
+  let list=own||[];
+  const draw=()=>{
+    $("#owntags").innerHTML=(own?list:["Tomar agua","Hablar con un colega"]).map((t,i)=>`<span class="tag">${esc(t)}${own?`<button data-i="${i}" aria-label="Quitar">✕</button>`:""}</span>`).join("");
+    $("#ownnote").textContent=own?"Tus herramientas se guardan solo en este navegador.":"Ejemplos. Cuando agregues la primera, aparecerán aquí las tuyas.";
+    $$("#owntags button").forEach(b=>b.onclick=()=>{list.splice(+b.dataset.i,1);store.set("mochila-propia",list);draw()});
+  };
+  $("#ownf").onsubmit=e=>{e.preventDefault();const v=$("#owni").value.trim();if(!v)return;list.push(v);store.set("mochila-propia",list);own=list;$("#owni").value="";draw()};
+  draw();
+}
+
+/* ---------- Encabezado de recurso ---------- */
+function head(r){
+  const i=R.indexOf(r),prev=R[i-1],next=R[i+1];
+  return `<div class="nav"><a class="btn ghost small" href="#mochila">← Volver a la mochila</a>
+    <span class="row">${prev?`<a class="btn ghost small" href="#${prev.id}">← ${prev.n}. ${esc(prev.tema)}</a>`:""}${next?`<a class="btn ghost small" href="#${next.id}">${next.n}. ${esc(next.tema)} →</a>`:""}</span></div>
+   <section class="rhead" style="--c:${r.c}">
+     <span class="ic">${ICON[r.id]}</span>
+     <div><span class="n">Recurso ${r.n} · ${esc(r.obj)}</span><h2>${esc(r.tema)}</h2><div class="act">Actividad: ${esc(r.act)}</div>
+       <p style="margin-top:8px;max-width:75ch">${esc(r.desc)}</p>
+       <div class="rmeta"><div><p class="sub">Material</p>${esc(r.mat)}</div><div style="grid-column:span 2"><p class="sub">Aprendizaje</p>${esc(r.apr)}</div></div></div>
+   </section>`;
+}
+
+/* ---------- 1 Moodmeter ---------- */
+function viewMoodmeter(app,r){
+  let sel={r:3,c:6},zq="yellow",log=store.get("mm-log",[]);
+  const narrow=matchMedia("(max-width:640px)");
+  app.innerHTML=head(r)+`
+   <div class="mm">
+     <section class="panel">
+       <div class="sec-title"><h3>¿Cómo te sientes ahora?</h3><span class="muted" style="font-size:14px">Toca la palabra que mejor te describe</span></div>
+       <div class="chips qchips" id="qch"></div>
+       <div class="board"><div class="yaxis"><span>− Energía</span><span>Energía +</span></div><div class="mgrid" id="mg"></div><div class="xaxis"><span>− Agrado</span><span>Agrado +</span></div></div>
+     </section>
+     <section class="panel" id="mp"></section>
+   </div>
+   <section class="panel"><div class="sec-title"><h3>Mi registro</h3><span id="mlc"></span></div><div id="ml"></div></section>`;
+  function grid(){
+    const z=narrow.matches,g=$("#mg");g.classList.toggle("zoom",z);let h="";
+    for(let i=0;i<10;i++)for(let j=0;j<10;j++){const q=quadOf(i,j);if(z&&q!==zq)continue;
+      h+=`<button class="cell" style="--q:var(--${q});--p:${14+intensity(i,j)*11}%" data-r="${i}" data-c="${j}" aria-pressed="${sel.r===i&&sel.c===j}">${WORDS[i][j]}</button>`}
+    g.innerHTML=h;$$("#mg .cell").forEach(b=>b.onclick=()=>{sel={r:+b.dataset.r,c:+b.dataset.c};grid();panel()});
+    $("#qch").innerHTML=QORD.map(q=>`<button class="chip" style="--q:var(--${q})" data-q="${q}" aria-pressed="${q===zq}">${QI[q].name}</button>`).join("");
+    $$("#qch .chip").forEach(b=>b.onclick=()=>{zq=b.dataset.q;grid()});
+  }
+  function panel(){
+    const {r:i,c:j}=sel,q=quadOf(i,j),d=QI[q],w=WORDS[i][j],p=$("#mp");p.style.setProperty("--q",`var(--${q})`);
+    const prev=$("#mnote")?$("#mnote").value:"";
+    p.innerHTML=`<div class="mmband"><span class="sub">Cuadrante ${d.name} · ${d.sub}</span><h3>${w}</h3><div class="pills"><span class="pill">Energía ${sgn(energy(i))}</span><span class="pill">Agrado ${sgn(pleasant(j))}</span><span class="pill">Intensidad ${intensity(i,j)}/5</span></div></div>
+     <ol class="ruler">
+      <li><span class="L">R</span><div><h4>Reconocer</h4><p>Energía ${energy(i)>0?"alta":"baja"} y una sensación ${pleasant(j)>0?"agradable":"desagradable"}.</p></div></li>
+      <li><span class="L">U</span><div><h4>Comprender</h4><p>${d.understand}</p><label class="sub" for="mnote" style="display:block;margin-top:8px">¿Qué pasó? (opcional)</label><textarea id="mnote" placeholder="Ej.: El 7.° B no entregó la tarea por tercera vez.">${esc(prev)}</textarea></div></li>
+      <li><span class="L">L</span><div><h4>Nombrar</h4><p>«Me siento <strong style="color:var(--ink)">${w.toLowerCase()}</strong>.» Nombrarla con precisión ya reduce su intensidad.</p></div></li>
+      <li><span class="L">E</span><div><h4>Expresar</h4><p>${d.express}</p></div></li>
+      <li><span class="L">R</span><div><h4>Regular</h4><p class="sub" style="margin:6px 0 0">Para ti</p><ul>${d.self.map(s=>`<li>${s}</li>`).join("")}</ul><p class="sub" style="margin:10px 0 0">En el aula</p><ul>${d.room.map(s=>`<li>${s}</li>`).join("")}</ul></div></li>
+     </ol>
+     <div class="row"><button class="btn" id="msave">Registrar «${w}»</button><span class="toast" id="mt"></span></div>`;
+    $("#msave").onclick=()=>{const now=new Date();log.unshift({w,q,t:now.toISOString(),n:$("#mnote").value.trim()});log=log.slice(0,200);store.set("mm-log",log);$("#mnote").value="";$("#mt").textContent="Registrado a las "+now.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});drawLog()};
+  }
+  function drawLog(confirm){
+    $("#ml").innerHTML=log.length?`<ul class="log">${log.slice(0,30).map(x=>`<li style="--q:var(--${x.q})"><span class="dot"></span><span class="when">${fmtWhen(x.t)}</span><span><b>${esc(x.w)}</b>${x.n?`<span class="note">${esc(x.n)}</span>`:""}</span></li>`).join("")}</ul>`:`<div class="empty">Aún no hay registros. Elige una palabra y pulsa <strong>Registrar</strong>. Hacerlo al inicio y al final de la jornada muestra patrones.</div>`;
+    const c=$("#mlc");if(!log.length){c.innerHTML="";return}
+    if(confirm){c.innerHTML=`<span class="row">¿Borrar todo? <button class="btn small" id="my">Sí, borrar</button><button class="btn small ghost" id="mn">Cancelar</button></span>`;$("#my").onclick=()=>{log=[];store.set("mm-log",log);drawLog()};$("#mn").onclick=()=>drawLog()}
+    else{c.innerHTML=`<button class="btn small ghost" id="mc">Borrar registro</button>`;$("#mc").onclick=()=>drawLog(true)}
+  }
+  const ch=()=>{zq=quadOf(sel.r,sel.c);grid()};narrow.addEventListener("change",ch);onLeave(()=>narrow.removeEventListener("change",ch));
+  grid();panel();drawLog();
+}
+
+/* ---------- 2 Mindfulness + Respira ---------- */
+function viewMindfulness(app,r){
+  const STEPS=[
+   {t:"Pies en el suelo",d:"Apoya ambos pies. Siente el peso de tu cuerpo sobre la silla y el contacto con el piso.",s:10},
+   {t:"Observa tu respiración",d:"No la cambies. Solo nota si es rápida o lenta, profunda o corta.",s:15},
+   {t:"¿Qué sientes en el cuerpo?",d:"Recorre tu cuerpo sin intentar cambiar nada. Si quieres, marca dónde notas algo.",s:15,body:true},
+   {t:"Tres respiraciones lentas",d:"Inhala en 4 tiempos y exhala en 6. Sigue el círculo.",breath:true},
+   {t:"¿Qué necesito en este momento?",d:"Escucha la respuesta que aparece, sin juzgarla.",ask:true}];
+  const BODY=["Cabeza","Mandíbula","Hombros","Pecho","Estómago","Manos","Piernas","Nada en especial"];
+  const NEEDS=["Una pausa","Agua","Hablar con alguien","Moverme","Silencio","Pedir ayuda","Terminar algo pendiente","Descansar"];
+  let curP=null,i=-1,left=0,tm=null,marks=new Set(),plog=store.get("mind-log",[]);
+  app.innerHTML=head(r)+`
+   <section class="panel" style="--c:var(--calm)">
+     <div class="sec-title"><h3>Un minuto para volver a mí</h3><span class="muted" style="font-size:14px">Unos 70 segundos · avanza solo, puedes saltar pasos</span></div>
+     <div class="steps-dots" id="sd">${STEPS.map(()=>`<i></i>`).join("")}</div>
+     <div class="minute" id="mw"></div>
+   </section>
+   <section class="panel"><div class="sec-title"><h3>Mis pausas</h3></div><div id="plog"></div></section>
+   <section class="panel" style="--tc:var(--calm)">
+     <div class="sec-title"><h3>Más formas de respirar</h3><span class="muted" style="font-size:14px">Para ti o para guiar a tu grupo</span></div>
+     <div class="grid2"><div class="techs" id="techs"></div>
+       <div style="display:flex;flex-direction:column;gap:14px" id="rp">
+         <div id="pz"></div>
+         <div><p class="sub">Un ciclo</p><div class="timeline" id="tl"></div></div>
+         <div class="row" style="justify-content:space-between"><span class="row"><button class="btn" id="rgo">Empezar</button><button class="btn ghost" id="rre">Reiniciar</button></span>
+           <span class="seg" id="rdur">${[1,2,3,5].map(m=>`<button data-m="${m}" aria-pressed="${m===2}">${m} min</button>`).join("")}</span></div>
+         <div class="muted" style="font-size:14px" id="rst"></div>
+       </div></div>
+     <p class="muted" style="font-size:14px">Respira por la nariz si puedes y sin forzar. Si sientes mareo, vuelve a tu respiración normal.</p>
+   </section>`;
+  function dots(){$$("#sd i").forEach((d,j)=>d.classList.toggle("on",j<=i))}
+  function intro(){
+    $("#mw").innerHTML=`<p class="mdesc">Busca una postura cómoda. Puedes cerrar los ojos o dejar la mirada en un punto fijo.</p><div class="row" style="justify-content:center"><button class="btn" id="mgo">Empezar el minuto</button></div>`;
+    $("#mgo").onclick=()=>go(0);
+  }
+  function go(k){
+    clearInterval(tm);if(curP){curP.reset();curP=null}i=k;dots();const s=STEPS[k];
+    if(!s){return}
+    let extra="";
+    if(s.body)extra=`<div class="chips body-chips" id="bc">${BODY.map(b=>`<button class="chip" aria-pressed="${marks.has(b)}" data-b="${b}">${b}</button>`).join("")}</div>`;
+    if(s.breath)extra=`<div id="mpz"></div>`;
+    if(s.ask)extra=`<div style="max-width:560px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:10px"><div class="chips" id="nc" style="justify-content:center">${NEEDS.map(n=>`<button class="chip" data-n="${n}">${n}</button>`).join("")}</div>
+      <textarea id="need" placeholder="Lo que necesito ahora es…"></textarea><div class="row" style="justify-content:center"><button class="btn" id="nsave">Guardar mi pausa</button><button class="btn ghost" id="again">Repetir el minuto</button></div><p class="toast" id="nt" style="text-align:center"></p></div>`;
+    $("#mw").innerHTML=`<div class="mstep">${s.t}</div><p class="mdesc">${s.d}</p>${extra}${s.s?`<div class="mtimer" id="mtm">${s.s}</div>`:""}
+      ${s.ask?"":`<div class="row" style="justify-content:center"><button class="btn ghost small" id="skip">Siguiente paso →</button></div>`}`;
+    if(!s.ask)$("#skip").onclick=()=>go(k+1);
+    if(s.body)$$("#bc .chip").forEach(b=>b.onclick=()=>{const v=b.dataset.b;marks.has(v)?marks.delete(v):marks.add(v);b.setAttribute("aria-pressed",marks.has(v))});
+    if(s.s){left=s.s;tm=setInterval(()=>{left--;const e=$("#mtm");if(e)e.textContent=Math.max(0,left);if(left<=0){clearInterval(tm);go(k+1)}},1000)}
+    if(s.breath){const p=makePacer($("#mpz"),{phases:TECH[0].phases,cycles:3,idle:"Inhala",doneText:"Bien",doneCue:"",onEnd:()=>{curP=null;setTimeout(()=>{if(i===k)go(k+1)},900)}});curP=p;p.start()}
+    if(s.ask){
+      $$("#nc .chip").forEach(b=>b.onclick=()=>{const t=$("#need");t.value=t.value?t.value.replace(/\s*$/,"")+", "+b.dataset.n.toLowerCase():b.dataset.n;});
+      $("#nsave").onclick=()=>{const v=$("#need").value.trim();plog.unshift({t:new Date().toISOString(),b:[...marks],n:v});plog=plog.slice(0,60);store.set("mind-log",plog);$("#nt").textContent="Guardado. Date permiso para atender esa necesidad.";drawP()};
+      $("#again").onclick=()=>{marks=new Set();go(0)};
+    }
+  }
+  function drawP(){
+    $("#plog").innerHTML=plog.length?`<ul class="log">${plog.slice(0,20).map(x=>`<li style="--q:var(--calm)"><span class="dot"></span><span class="when">${fmtWhen(x.t)}</span><span><b>${esc(x.n||"Sin anotar")}</b>${x.b.length?`<span class="note">Lo noté en: ${esc(x.b.join(", ").toLowerCase())}</span>`:""}</span></li>`).join("")}</ul>`:`<div class="empty">Cuando termines un minuto y guardes tu necesidad, aparecerá aquí. Con el tiempo verás qué te pide el cuerpo con más frecuencia.</div>`;
+  }
+  onLeave(()=>clearInterval(tm));
+  intro();drawP();
+  // Respira
+  let cur=TECH[0],mins=2;
+  const pz=makePacer($("#pz"),{phases:cur.phases,ms:()=>mins*60000,idleCue:"Pulsa Empezar y sigue el círculo",
+    onPhase:k=>$$("#tl div").forEach((d,j)=>d.classList.toggle("now",j===k)),
+    onTick:e=>{$("#rst").textContent=`Ciclo ${pz.cycles+1} · quedan ${fmtS(mins*60000-e)}`},
+    onEnd:c=>{$("#rgo").textContent="Otra vez";$("#rst").textContent=`Terminaste ${c} ciclos de ${cur.name.toLowerCase()}. ¿Notas algún cambio en hombros, mandíbula o ritmo del corazón?`;$$("#tl div").forEach(d=>d.classList.remove("now"))}});
+  const fmtS=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+  function tdraw(){
+    $("#techs").innerHTML=TECH.map(t=>`<button class="tech" data-id="${t.id}" aria-pressed="${t===cur}"><b>${t.name}</b><span>${t.pat}</span><p>${t.short}</p></button>`).join("");
+    $$("#techs .tech").forEach(b=>b.onclick=()=>{cur=TECH.find(t=>t.id===b.dataset.id);reset();tdraw()});
+    $("#rp").style.setProperty("--tc",cur.tc);
+    $("#tl").innerHTML=cur.phases.map(p=>`<div class="${p.k}" style="flex:${p.s}">${p.l.split(" ")[0]} ${p.s}</div>`).join("");
+  }
+  function reset(){pz.reset(cur.phases);$("#rgo").textContent="Empezar";$("#rst").textContent=`${mins} min ≈ ${Math.round(mins*60/cur.phases.reduce((a,p)=>a+p.s,0))} ciclos`}
+  $("#rgo").onclick=()=>{if(pz.running){pz.pause();$("#rgo").textContent="Continuar"}else{if($("#rgo").textContent==="Otra vez")reset();pz.start();$("#rgo").textContent="Pausar"}};
+  $("#rre").onclick=reset;
+  $$("#rdur button").forEach(b=>b.onclick=()=>{mins=+b.dataset.m;$$("#rdur button").forEach(x=>x.setAttribute("aria-pressed",x===b));if(!pz.running)reset()});
+  tdraw();reset();
+}
+
+/* ---------- 3 Flor ---------- */
+function viewFlor(app,r){
+  let f=store.get("flor-cur",null),isEx=!f;
+  if(!f)f={p:["Cansada","Frustrada","Preocupada","Agradecida","Ansiosa","Esperanzada"],c:"Conversar con una colega"};
+  let sel=0,hist=store.get("flor-hist",[]);
+  const SUG={red:["Frustrado","Estresado","Enojado","Preocupado","Nervioso","Agobiado","Irritado","Ansioso"],yellow:["Motivado","Orgulloso","Alegre","Esperanzado","Sorprendido","Inspirado"],blue:["Cansado","Desanimado","Triste","Decepcionado","Exhausto","Solo"],green:["Agradecido","Tranquilo","Aliviado","Satisfecho","En paz","Conmovido"]};
+  const CEN=["Una pausa","Conversar con alguien","Descansar","Pedir ayuda","Moverme","Organizar mi tiempo","Reconocimiento","Silencio"];
+  const qOf=w=>{const k=(w||"").toLowerCase().trim();if(WORDQ[k])return WORDQ[k];const m=k.replace(/a$/,"o");if(WORDQ[m])return WORDQ[m];for(const q of QORD)if(SUG[q].some(s=>s.toLowerCase()===k||s.toLowerCase().replace(/o$/,"a")===k))return q;if(k==="ansiosa"||k==="ansioso")return "red";if(/aliviad/.test(k))return "green";return null};
+  app.innerHTML=head(r)+`
+   <div class="grid2">
+     <section class="panel flower"><div class="sec-title"><h3>Mi flor</h3><span class="muted" style="font-size:14px" id="fex"></span></div><div id="fsvg"></div>
+       <p class="muted" style="font-size:14px">Los colores siguen el Moodmeter: rojo, amarillo, azul o verde según la emoción. Una palabra que no está en el Moodmeter queda en rosado.</p></section>
+     <section class="panel">
+       <div><label class="f" for="pin" id="plab"></label><input type="text" id="pin" maxlength="22"></div>
+       <div class="wordgroups" id="wg"></div>
+       <div><label class="f" for="cin">Centro: una necesidad o recurso que me ayuda a recuperar el equilibrio</label><input type="text" id="cin" maxlength="40"><div class="chips" id="cc" style="margin-top:8px"></div></div>
+       <div class="row"><button class="btn" id="fsave">Guardar esta flor</button><button class="btn ghost" id="fnew">Nueva flor</button><span class="toast" id="ft"></span></div>
+     </section>
+   </div>
+   <section class="panel"><h3>Para reflexionar</h3><ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>¿Qué pétalo pesa más hoy? ¿Qué te dice esa emoción sobre lo que te importa?</li><li>¿Hay emociones agradables que aparecieron incluso en una jornada difícil?</li><li>¿Tu centro depende solo de ti o necesitas a alguien más para lograrlo?</li></ul></section>
+   <section class="panel"><h3>Mis flores guardadas</h3><div id="fh"></div></section>`;
+  function svg(){
+    const P=[0,60,120,180,240,300];
+    $("#fsvg").innerHTML=`<svg viewBox="0 0 320 340" role="img" aria-label="Flor con seis emociones">
+      <path d="M160 230 C160 280 150 310 160 338" stroke="var(--green)" stroke-width="6" fill="none"/>
+      <path d="M160 290 C130 270 110 280 100 300 C125 305 145 300 160 290z" fill="var(--green)"/>
+      ${P.map((a,k)=>{const q=qOf(f.p[k]);const col=f.p[k]?(q?`var(--${q})`:"var(--rose)"):"var(--line)";const rad=(a-90)*Math.PI/180;const tx=160+78*Math.cos(rad),ty=150+78*Math.sin(rad);
+        return `<g><ellipse class="petal${k===sel?" sel":""}" data-k="${k}" cx="160" cy="72" rx="44" ry="66" transform="rotate(${a} 160 150)" fill="color-mix(in srgb,${col} ${f.p[k]?55:40}%,var(--mixbase))" tabindex="0" role="button" aria-label="Pétalo ${k+1}: ${esc(f.p[k]||"vacío")}"/>
+         <text x="${tx.toFixed(1)}" y="${(ty+4).toFixed(1)}" text-anchor="middle">${esc((f.p[k]||"…").slice(0,14))}</text></g>`}).join("")}
+      <circle cx="160" cy="150" r="46" fill="var(--yellow)" stroke="var(--surface)" stroke-width="3"/>
+      <foreignObject x="118" y="112" width="84" height="76"><div xmlns="http://www.w3.org/1999/xhtml" style="height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font:700 12px/1.2 var(--body);color:#1A1D26;overflow:hidden">${esc(f.c||"Mi centro")}</div></foreignObject>
+    </svg>`;
+    $$("#fsvg .petal").forEach(p=>{p.onclick=()=>{sel=+p.dataset.k;draw();$("#pin").focus()};p.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();p.onclick()}}});
+    $("#fex").textContent=isEx?"Ejemplo · cámbiala por la tuya":"";
+  }
+  function draw(){
+    svg();$("#plab").textContent=`Pétalo ${sel+1}: una emoción de tu jornada difícil`;$("#pin").value=f.p[sel]||"";
+    $("#wg").innerHTML=QORD.map(q=>`<div class="chips">${SUG[q].map(w=>`<button class="chip" style="--q:var(--${q})" data-w="${w}">${w}</button>`).join("")}</div>`).join("");
+    $$("#wg .chip").forEach(b=>b.onclick=()=>{f.p[sel]=b.dataset.w;isEx=false;persist();sel=(sel+1)%6;draw()});
+    $("#cin").value=f.c||"";
+    $("#cc").innerHTML=CEN.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("");
+    $$("#cc .chip").forEach(b=>b.onclick=()=>{f.c=b.dataset.c;isEx=false;persist();draw()});
+  }
+  function persist(){store.set("flor-cur",f)}
+  $("#pin").oninput=e=>{f.p[sel]=e.target.value;isEx=false;persist();svg()};
+  $("#cin").oninput=e=>{f.c=e.target.value;isEx=false;persist();svg()};
+  $("#fsave").onclick=()=>{hist.unshift({t:new Date().toISOString(),p:[...f.p],c:f.c});hist=hist.slice(0,30);store.set("flor-hist",hist);$("#ft").textContent="Flor guardada";drawH()};
+  $("#fnew").onclick=()=>{f={p:["","","","","",""],c:""};isEx=false;sel=0;persist();draw();$("#ft").textContent=""};
+  function drawH(){$("#fh").innerHTML=hist.length?`<ul class="log">${hist.map(h=>`<li style="--q:var(--rose)"><span class="dot"></span><span class="when">${fmtWhen(h.t)}</span><span><b>${esc(h.c||"Sin centro")}</b><span class="note">${esc(h.p.filter(Boolean).join(" · "))}</span></span></li>`).join("")}</ul>`:`<div class="empty">Guarda tu flor al terminar una jornada difícil. Con varias flores verás qué emociones se repiten y qué te devuelve el equilibrio.</div>`}
+  draw();drawH();
+}
+
+/* ---------- 4 Red de lana ---------- */
+function viewRed(app,r){
+  const EX=[{w:"Carolina (UTP)",a:"Me pregunta cómo estoy antes de hablar de trabajo"},{w:"Equipo de 2.° ciclo",a:"Compartimos materiales sin que lo pida"},{w:"Don Luis (portería)",a:"Me saluda por mi nombre cada mañana"},{w:"Paula (orientación)",a:"Me acompaña en las entrevistas difíciles con apoderados"},{w:"Mi dupla de nivel",a:"Escucha sin juzgar cuando tengo un mal día"}];
+  let d=store.get("red",null),isEx=!d,net=d||EX.map(x=>({...x})),selN=-1,fresh=-1;
+  const SEATS=[0,5,10,3,8,1,6,11,4,9,2,7];
+  app.innerHTML=head(r)+`
+   <div class="grid2">
+     <section class="panel net"><div class="sec-title"><h3 id="rt"></h3><span class="muted" style="font-size:14px" id="rc"></span></div><div id="rs"></div><div id="rinfo" class="muted" style="font-size:15px;min-height:3em;text-align:center"></div></section>
+     <section class="panel">
+       <h3>Pasa el ovillo</h3>
+       <p class="muted">¿Quién en tu colegio te hace sentir escuchado o acompañado? ¿Qué hace exactamente? Cada persona que sumas tensa un nuevo hilo de la red.</p>
+       <form id="rf" style="display:flex;flex-direction:column;gap:10px">
+         <div><label class="f" for="rw">Persona o grupo</label><input type="text" id="rw" maxlength="30" placeholder="Ej.: Mi colega de Lenguaje"></div>
+         <div><label class="f" for="ra">La acción que me sostiene</label><input type="text" id="ra" maxlength="90" placeholder="Ej.: Me avisa cuando hay cambios en el horario"></div>
+         <div class="row"><button class="btn" type="submit">Pasar el ovillo</button><button class="btn ghost" type="button" id="rnew"></button></div>
+       </form>
+       <p class="muted" style="font-size:14px">Cabe una red de hasta 12 hilos. Después piensa: ¿a quién sostengo yo? ¿De quién podría ser el próximo hilo?</p>
+     </section>
+   </div>`;
+  function draw(){
+    const C=210,Rr=150,pos=k=>{const a=(SEATS[k]/12)*Math.PI*2-Math.PI/2;return [C+Rr*Math.cos(a),C+Rr*Math.sin(a)]};
+    let lines="";for(let k=1;k<net.length;k++){const [x1,y1]=pos(k-1),[x2,y2]=pos(k);const mx=(x1+x2)/2+(C-(x1+x2)/2)*.18,my=(y1+y2)/2+(C-(y1+y2)/2)*.18;lines+=`<path class="yarn${k===fresh?" new":""}" d="M${x1.toFixed(1)} ${y1.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}"/>`}
+    const nodes=net.map((n,k)=>{const [x,y]=pos(k),a=Math.atan2(y-C,x-C),lx=x+Math.cos(a)*30,ly=y+Math.sin(a)*30,anc=Math.abs(Math.cos(a))<.3?"middle":Math.cos(a)>0?"start":"end";
+      return `<g class="node${k===selN?" sel":""}" data-k="${k}" tabindex="0" role="button" aria-label="${esc(n.w)}: ${esc(n.a)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="16"/><text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="middle">${k+1}</text><text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="${anc}">${esc(n.w.slice(0,18))}</text></g>`}).join("");
+    const last=net.length?pos(net.length-1):[C,C];
+    $("#rs").innerHTML=`<svg viewBox="-110 -20 640 460" role="img" aria-label="Red de apoyo con ${net.length} hilos">${lines}${nodes}${net.length<12?`<circle class="ball" cx="${(last[0]+(C-last[0])*.25).toFixed(1)}" cy="${(last[1]+(C-last[1])*.25).toFixed(1)}" r="9"/>`:""}</svg>`;
+    $$("#rs .node").forEach(g=>{g.onclick=()=>{selN=+g.dataset.k;fresh=-1;draw()};g.onkeydown=e=>{if(e.key==="Enter"){selN=+g.dataset.k;fresh=-1;draw()}}});
+    $("#rt").textContent=isEx?"Red de ejemplo":"Mi red de apoyo";
+    $("#rc").textContent=`${net.length} ${net.length===1?"hilo":"hilos"}`;
+    $("#rinfo").innerHTML=selN>=0&&net[selN]?`<strong style="color:var(--ink)">${esc(net[selN].w)}:</strong> ${esc(net[selN].a)}`:(net.length?"Toca un punto para ver qué acción sostiene ese hilo.":"Agrega a la primera persona para empezar tu red.");
+    $("#rnew").textContent=isEx?"Empezar mi propia red":"Vaciar la red";
+  }
+  $("#rf").onsubmit=e=>{e.preventDefault();const w=$("#rw").value.trim(),a=$("#ra").value.trim();if(!w||!a)return;if(isEx){net=[];isEx=false}if(net.length>=12)return;net.push({w,a});fresh=net.length-1;selN=fresh;store.set("red",net);$("#rw").value="";$("#ra").value="";draw()};
+  let conf=false;
+  $("#rnew").onclick=()=>{if(isEx){net=[];isEx=false;store.set("red",net);selN=-1;draw();$("#rw").focus();return}
+    if(!conf){conf=true;$("#rnew").textContent="Confirmar: vaciar";setTimeout(()=>{conf=false;draw()},3000);return}
+    net=[];store.set("red",net);selN=-1;conf=false;draw()};
+  draw();
+}
+
+/* ---------- 5 CNV ---------- */
+function viewCnv(app,r){
+  const PHR=["¡Usted nunca colabora!","Siempre llegas tarde a las reuniones.","Este curso es un desastre.","Nadie respeta los acuerdos aquí.","Usted no me escucha.","Otra vez dejaron la sala sucia."];
+  const FEEL=["sobrecargada","frustrado","preocupada","cansado","desanimada","inquieto","confundida","triste","molesto","impotente"];
+  const NEED=["colaboración","apoyo","respeto","claridad","descanso","reconocimiento","orden","tiempo","confianza","ser escuchada"];
+  const JUDGE=/\b(nunca|siempre|nadie|todo el mundo|desastre|flojo|floja|irresponsable|maleducad[oa]|culpa|incapaz|p[eé]sim[oa]|otra vez|como siempre)\b/i;
+  const PSEUDO=/\b(ignorad[oa]|atacad[oa]|manipulad[oa]|utilizad[oa]|traicionad[oa]|juzgad[oa]|abandonad[oa]|despreciad[oa])\b/i;
+  let st=store.get("cnv-cur",null),isEx=!st,hist=store.get("cnv-hist",[]);
+  if(!st)st={f:"¡Usted nunca colabora!",o:"Cuando no contamos con apoyo para atender estas situaciones",s:"sobrecargada",n:"colaboración",p:"¿Podemos acordar cómo distribuir las responsabilidades?"};
+  app.innerHTML=head(r)+`
+   <div class="grid2">
+     <section class="panel">
+       <div><label class="f" for="cf">La frase que genera tensión</label><input type="text" id="cf" maxlength="90"><div class="chips" id="cph" style="margin-top:8px"></div></div>
+       <div class="cnv-steps">
+         <div class="cstep"><span class="L">1</span><div><label class="f" for="co">Observación sin juicio</label><p class="muted" style="font-size:14px;margin-bottom:6px">¿Qué pasó, tal como lo registraría una cámara?</p><input type="text" id="co" maxlength="140"><div id="cow"></div></div></div>
+         <div class="cstep"><span class="L">2</span><div><label class="f" for="cs">Sentimiento</label><p class="muted" style="font-size:14px;margin-bottom:6px">Lo que sientes tú, no lo que el otro te hace.</p><input type="text" id="cs" maxlength="40"><div class="chips" id="csc" style="margin-top:8px"></div><div id="csw"></div></div></div>
+         <div class="cstep"><span class="L">3</span><div><label class="f" for="cn">Necesidad</label><p class="muted" style="font-size:14px;margin-bottom:6px">¿Qué es importante para ti que no está ocurriendo?</p><input type="text" id="cn" maxlength="40"><div class="chips" id="cnc" style="margin-top:8px"></div></div></div>
+         <div class="cstep"><span class="L">4</span><div><label class="f" for="cp">Petición concreta</label><p class="muted" style="font-size:14px;margin-bottom:6px">Una acción posible, en positivo, que el otro pueda aceptar o no.</p><input type="text" id="cp" maxlength="140"><div id="cpw"></div></div></div>
+       </div>
+     </section>
+     <section class="panel">
+       <div class="sec-title"><h3>Así suena ahora</h3><span class="muted" style="font-size:14px" id="cex"></span></div>
+       <div class="preview" id="cprev"></div>
+       <div class="row"><button class="btn" id="ccopy">Copiar frase</button><button class="btn ghost" id="csave">Guardar</button><button class="btn ghost" id="cclear">Empezar otra</button><span class="toast" id="ct"></span></div>
+       <div><p class="sub">Mis frases transformadas</p><div id="ch"></div></div>
+     </section>
+   </div>`;
+  const F={f:"#cf",o:"#co",s:"#cs",n:"#cn",p:"#cp"};
+  function fill(){for(const k in F)$(F[k]).value=st[k]||""}
+  function compose(){
+    const gap=t=>`<span class="gap">${t}</span>`;
+    const o=st.o?.trim(),s=st.s?.trim(),n=st.n?.trim(),p=st.p?.trim();
+    return `${o?`<mark>${esc(o.charAt(0).toUpperCase()+o.slice(1))}</mark>`:gap("Cuando [observación]")}, me siento ${s?`<mark>${esc(s)}</mark>`:gap("[sentimiento]")} porque necesito ${n?`<mark>${esc(n)}</mark>`:gap("[necesidad]")}. ${p?`<mark>${esc(p)}</mark>`:gap("¿[petición]?")}`;
+  }
+  const plain=()=>`${(st.o||"").trim()}, me siento ${(st.s||"").trim()} porque necesito ${(st.n||"").trim()}. ${(st.p||"").trim()}`.replace(/^,/,"");
+  function update(){
+    $("#cprev").innerHTML=`${st.f?`<span class="before">${esc(st.f)}</span>`:""}${compose()}`;
+    $("#cow").innerHTML=JUDGE.test(st.o||"")?`<p class="warn" style="margin-top:6px">Aparece una palabra como «${esc((st.o.match(JUDGE)||[""])[0])}». Suena a juicio o generalización; describe un hecho concreto.</p>`:"";
+    $("#csw").innerHTML=PSEUDO.test(st.s||"")?`<p class="warn" style="margin-top:6px">«${esc(st.s.match(PSEUDO)[0])}» describe lo que crees que el otro hace. Prueba con lo que sientes: frustrada, triste, sola…</p>`:"";
+    const p=(st.p||"").trim();
+    $("#cpw").innerHTML=p&&!/\?|podr|pod[eé]is|podemos|te parece|le parece|quisiera|me gustar/i.test(p)?`<p class="warn" style="margin-top:6px">Suena a exigencia. Una petición deja espacio para el sí o el no: «¿Podríamos…?», «¿Te parece si…?».</p>`:(p&&/\bno\b/i.test(p)?`<p class="warn" style="margin-top:6px">Pide lo que sí quieres que pase, en lugar de lo que no.</p>`:"");
+    $("#cex").textContent=isEx?"Ejemplo del curso":"";
+  }
+  const chips=(sel,list,key)=>{$(sel).innerHTML=list.map(x=>`<button class="chip" data-v="${x}">${x}</button>`).join("");$$(sel+" .chip").forEach(b=>b.onclick=()=>{st[key]=b.dataset.v;isEx=false;store.set("cnv-cur",st);fill();update()})};
+  chips("#cph",PHR,"f");chips("#csc",FEEL,"s");chips("#cnc",NEED,"n");
+  for(const k in F)$(F[k]).oninput=e=>{st[k]=e.target.value;isEx=false;store.set("cnv-cur",st);update()};
+  $("#ccopy").onclick=()=>{const t=plain();try{navigator.clipboard.writeText(t).then(()=>$("#ct").textContent="Copiada",()=>{$("#ct").textContent="Selecciona el texto para copiarlo"})}catch(e){$("#ct").textContent="Selecciona el texto para copiarlo"}};
+  $("#csave").onclick=()=>{hist.unshift({t:new Date().toISOString(),f:st.f,x:plain()});hist=hist.slice(0,30);store.set("cnv-hist",hist);$("#ct").textContent="Guardada";drawH()};
+  $("#cclear").onclick=()=>{st={f:"",o:"",s:"",n:"",p:""};isEx=false;store.set("cnv-cur",st);fill();update();$("#cf").focus()};
+  function drawH(){$("#ch").innerHTML=hist.length?`<ul class="log">${hist.map(h=>`<li style="--q:var(--violet)"><span class="dot"></span><span class="when">${fmtWhen(h.t)}</span><span><b>${esc(h.x)}</b>${h.f?`<span class="note">Antes: ${esc(h.f)}</span>`:""}</span></li>`).join("")}</ul>`:`<div class="empty">Las frases que guardes aparecerán aquí para tenerlas a mano en una conversación difícil.</div>`}
+  fill();update();drawH();
+}
+
+/* ---------- 6 Normas ---------- */
+function viewNormas(app,r){
+  const SIT=["Interrupciones mientras alguien habla","Uso del celular en clase","Atrasos al inicio de la jornada","Trato entre compañeros en el recreo","Orden y limpieza de la sala","Reuniones de docentes que se alargan"];
+  const EX={s:"Interrupciones mientras alguien habla",a:["Levantamos la mano para pedir la palabra","Usamos una señal para avisar que alguien no terminó"],p:["Esperar mi turno","Recordar la señal con calma","Escuchar hasta el final","Dar la palabra a quien no ha hablado"]};
+  let d=store.get("normas",null),isEx=!d;if(!d)d=JSON.parse(JSON.stringify(EX));
+  const COLS=["var(--amber)","var(--yellow)","var(--green)","var(--sky)","var(--rose)","var(--violet)","var(--calm)","var(--blue)","var(--wool)"];
+  app.innerHTML=head(r)+`
+   <section class="panel">
+     <div><label class="f" for="ns">1. Una situación frecuente de convivencia</label><input type="text" id="ns" maxlength="80"><div class="chips" id="nsc" style="margin-top:8px"></div></div>
+     <div><p class="f">2. Dos acuerdos concretos para mejorarla</p><div class="agreements"><input type="text" id="na0" maxlength="90" aria-label="Acuerdo 1" placeholder="Acuerdo 1"><input type="text" id="na1" maxlength="90" aria-label="Acuerdo 2" placeholder="Acuerdo 2"></div></div>
+   </section>
+   <div class="grid2">
+     <section class="panel puzzle"><div class="sec-title"><h3>3. Nuestro rompecabezas</h3><span class="muted" style="font-size:14px" id="nex"></span></div><div id="nz"></div><p class="muted" style="font-size:14px;text-align:center" id="ncount"></p></section>
+     <section class="panel">
+       <h3>Aporta tu pieza</h3>
+       <p class="muted">Cada integrante escribe una acción que está dispuesto a cumplir. Si haces la actividad solo, piensa en lo que diría cada persona de tu equipo o curso.</p>
+       <form id="nf" class="addrow"><input type="text" id="np" maxlength="50" placeholder="Me comprometo a…" aria-label="Mi compromiso"><button class="btn" type="submit">Poner pieza</button></form>
+       <ul class="notes" id="nl"></ul>
+       <div class="row"><button class="btn ghost" id="nnew"></button></div>
+       <p class="muted" style="font-size:14px">Una buena norma se dice en positivo («hablamos de a uno»), es observable y se revisa juntos después de un tiempo.</p>
+     </section>
+   </div>`;
+  function edge(x0,y0,x1,y1,s){
+    if(!s)return `L${x1} ${y1}`;const dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,nx=uy,ny=-ux;
+    const P=(t,o)=>`${(x0+ux*len*t+nx*len*o*s).toFixed(1)} ${(y0+uy*len*t+ny*len*o*s).toFixed(1)}`;
+    return `L${P(.36,0)} C${P(.30,.2)} ${P(.38,.3)} ${P(.5,.3)} C${P(.62,.3)} ${P(.70,.2)} ${P(.64,0)} L${x1} ${y1}`;
+  }
+  function puzzle(){
+    const n=d.p.length,cols=3,rows=Math.min(3,Math.max(2,Math.ceil((n+1)/3))),W=120;
+    const tH=(rr,c)=>((rr*7+c*3)%2?1:-1),tV=(rr,c)=>((rr*5+c*11)%2?1:-1);
+    let out="";
+    for(let rr=0;rr<rows;rr++)for(let c=0;c<cols;c++){
+      const k=rr*cols+c,x=c*W,y=rr*W;
+      const top=rr===0?0:-tH(rr-1,c),right=c===cols-1?0:tV(rr,c),bottom=rr===rows-1?0:tH(rr,c),left=c===0?0:-tV(rr,c-1);
+      const path=`M${x} ${y} ${edge(x,y,x+W,y,top)} ${edge(x+W,y,x+W,y+W,right)} ${edge(x+W,y+W,x,y+W,bottom)} ${edge(x,y+W,x,y,left)} Z`;
+      const filled=k<n;
+      out+=`<path class="piece${filled?"":" empty"}" d="${path}" fill="${filled?`color-mix(in srgb,${COLS[k%COLS.length]} 70%,var(--mixbase))`:"transparent"}"/>`;
+      out+=`<foreignObject x="${x+18}" y="${y+18}" width="${W-36}" height="${W-36}"><div xmlns="http://www.w3.org/1999/xhtml" class="ptext" style="${filled?"":"color:var(--muted);font-weight:400"}">${filled?esc(d.p[k]):k===n?"Tu pieza":""}</div></foreignObject>`;
+    }
+    $("#nz").innerHTML=`<svg viewBox="-40 -40 ${cols*W+80} ${rows*W+80}" role="img" aria-label="Rompecabezas con ${n} piezas">${out}</svg>`;
+    $("#ncount").textContent=n?`${n} ${n===1?"pieza":"piezas"} de ${rows*cols}. La norma se sostiene cuando cada pieza está en su lugar.`:"Aún no hay piezas.";
+    $("#nl").innerHTML=d.p.map((p,k)=>`<li><span>${k+1}. ${esc(p)}</span><button data-k="${k}" aria-label="Quitar pieza">✕</button></li>`).join("");
+    $$("#nl button").forEach(b=>b.onclick=()=>{d.p.splice(+b.dataset.k,1);save();puzzle()});
+    $("#nex").textContent=isEx?"Ejemplo":"";$("#nnew").textContent=isEx?"Empezar el nuestro":"Nuevo rompecabezas";
+  }
+  function save(){isEx=false;store.set("normas",d)}
+  $("#ns").value=d.s;$("#na0").value=d.a[0]||"";$("#na1").value=d.a[1]||"";
+  $("#nsc").innerHTML=SIT.map(s=>`<button class="chip" data-v="${s}">${s}</button>`).join("");
+  $$("#nsc .chip").forEach(b=>b.onclick=()=>{d.s=b.dataset.v;$("#ns").value=d.s;save();puzzle()});
+  $("#ns").oninput=e=>{d.s=e.target.value;save()};
+  [0,1].forEach(k=>$("#na"+k).oninput=e=>{d.a[k]=e.target.value;save()});
+  $("#nf").onsubmit=e=>{e.preventDefault();const v=$("#np").value.trim();if(!v||d.p.length>=9)return;if(isEx)d.p=[];d.p.push(v);$("#np").value="";save();puzzle()};
+  $("#nnew").onclick=()=>{d={s:"",a:["",""],p:[]};save();$("#ns").value="";$("#na0").value="";$("#na1").value="";puzzle();$("#ns").focus()};
+  puzzle();
+}
+
+/* ---------- 7 Espacio + Caja de calma ---------- */
+function viewEspacio(app,r){
+  const CAT={rec:{n:"Reconocer emociones",k:"var(--blue)",items:["Moodmeter","Cartel de emociones","Termómetro emocional","Espejo"]},
+             cal:{n:"Recuperar la calma",k:"var(--green)",items:["Frasco de la calma","Cojines","Tarjetas de respiración","Reloj de arena","Audífonos","Peluche"]},
+             aco:{n:"Pedir acompañamiento",k:"var(--rose)",items:["Buzón «Necesito hablar»","Tarjeta «Pido ayuda»","Fotos de adultos de confianza","Señal para llamar al docente"]}};
+  let sp=store.get("espacio",{name:"",items:[]});
+  let kq=null,kage="all";
+  app.innerHTML=head(r)+`
+   <div class="grid2 wide">
+     <section class="panel plan">
+       <div class="sec-title"><h3>Plano de mi aula</h3><span class="muted" style="font-size:14px">Toca un recurso para ponerlo en el rincón; arrástralo para moverlo</span></div>
+       <div id="pl"></div>
+       <div><label class="f" for="spn">Nombre del espacio</label><input type="text" id="spn" maxlength="40" placeholder="Ej.: El rincón de la calma, Mi refugio, La isla"></div>
+     </section>
+     <section class="panel">
+       <h3>¿Tiene los tres recursos?</h3>
+       <ul class="checks" id="ck"></ul>
+       <div class="palette" id="pal"></div>
+       <div><p class="sub">Puestos en el plano</p><div class="tags" id="placed"></div></div>
+       <button class="btn ghost small" id="spclear" style="align-self:flex-start">Vaciar el plano</button>
+     </section>
+   </div>
+   <section class="panel" style="--c:var(--green)">
+     <div class="sec-title"><h3>Caja de calma: técnicas para usar en tu rincón con niños</h3><span class="muted" style="font-size:14px" id="kc"></span></div>
+     <div class="row" style="justify-content:space-between"><div class="chips" id="kq"></div><span class="seg" id="ka">${[["all","Todas las edades"],["3-5","3–5"],["6-8","6–8"],["9-12","9–12"]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${v==="all"}">${l}</button>`).join("")}</span></div>
+     <div class="kits" id="kits"></div>
+   </section>`;
+  const W=600,H=400,ZONE={x:395,y:215,w:180,h:160};
+  function drawPlan(){
+    const desks=[];for(let rr=0;rr<3;rr++)for(let c=0;c<4;c++)desks.push(`<rect class="furn" x="${70+c*72}" y="${150+rr*70}" width="52" height="34" rx="4"/>`);
+    $("#pl").innerHTML=`<svg viewBox="0 0 ${W} ${H}" id="psvg" role="img" aria-label="Plano del aula con ${sp.items.length} recursos">
+      <rect class="wall" x="20" y="20" width="560" height="360" rx="6"/>
+      <path d="M20 330v50h50" fill="none" stroke="var(--soft)" stroke-width="6"/><path d="M22 330a48 48 0 0 1 48 48" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4"/><text class="lab" x="30" y="322">Puerta</text>
+      ${[120,260,400].map(x=>`<rect x="${x}" y="16" width="80" height="8" fill="color-mix(in srgb,var(--sky) 40%,var(--mixbase))"/>`).join("")}<text class="lab" x="122" y="40">Ventanas</text>
+      <rect class="furn" x="200" y="56" width="200" height="10" rx="3"/><text class="lab" x="270" y="84">Pizarrón</text>
+      <rect class="furn" x="430" y="90" width="90" height="44" rx="5"/><text class="lab" x="440" y="116">Escritorio</text>
+      ${desks.join("")}<text class="lab" x="160" y="368">Puestos de estudiantes</text>
+      <rect class="zone" x="${ZONE.x}" y="${ZONE.y}" width="${ZONE.w}" height="${ZONE.h}" rx="14"/><text class="lab" x="${ZONE.x+10}" y="${ZONE.y+18}" style="fill:var(--green)">${esc(sp.name||"Espacio de bienestar")}</text>
+      ${sp.items.map((it,k)=>{const w=Math.min(170,it.l.length*6.2+16);return `<g class="stk" data-k="${k}" transform="translate(${it.x} ${it.y})"><rect x="${-w/2}" y="-12" width="${w}" height="24" rx="12" fill="color-mix(in srgb,${CAT[it.c].k} 75%,var(--mixbase))"/><text text-anchor="middle" y="4">${esc(it.l)}</text></g>`}).join("")}
+    </svg>`;
+    const svg=$("#psvg");
+    $$("#psvg .stk").forEach(g=>{
+      g.onpointerdown=e=>{e.preventDefault();const k=+g.dataset.k;g.setPointerCapture(e.pointerId);g.style.cursor="grabbing";
+        const pt=svg.createSVGPoint();
+        const mv=ev=>{pt.x=ev.clientX;pt.y=ev.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());sp.items[k].x=Math.max(60,Math.min(540,p.x));sp.items[k].y=Math.max(40,Math.min(368,p.y));g.setAttribute("transform",`translate(${sp.items[k].x} ${sp.items[k].y})`)};
+        const up=()=>{g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up);g.style.cursor="";store.set("espacio",sp)};
+        g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)};
+    });
+    // checklist
+    $("#ck").innerHTML=Object.entries(CAT).map(([c,v])=>{const ok=sp.items.some(i=>i.c===c);return `<li class="${ok?"done":""}" style="--k:${v.k}"><span class="box">${ok?"✓":""}</span>${v.n}</li>`}).join("")+
+      (Object.keys(CAT).every(c=>sp.items.some(i=>i.c===c))?`<li class="ok" style="margin-top:4px">Tu espacio ya tiene los tres recursos. ¿Qué mensaje comunica a quien llega?</li>`:"");
+    $("#placed").innerHTML=sp.items.length?sp.items.map((it,k)=>`<span class="tag" style="background:color-mix(in srgb,${CAT[it.c].k} 20%,var(--mixbase))">${esc(it.l)}<button data-k="${k}" aria-label="Quitar ${esc(it.l)}">✕</button></span>`).join(""):`<span class="muted" style="font-size:14px">Todavía nada. Empieza por un recurso de cada color.</span>`;
+    $$("#placed button").forEach(b=>b.onclick=()=>{sp.items.splice(+b.dataset.k,1);store.set("espacio",sp);drawPlan()});
+  }
+  $("#pal").innerHTML=Object.entries(CAT).map(([c,v])=>`<div><p class="sub" style="color:var(--ink)">${v.n}</p><div class="chips">${v.items.map(l=>`<button class="chip" style="--k:${v.k}" data-c="${c}" data-l="${esc(l)}">+ ${esc(l)}</button>`).join("")}</div></div>`).join("");
+  $$("#pal .chip").forEach(b=>b.onclick=()=>{const n=sp.items.length,col=n%2,row=Math.floor(n/2)%5;sp.items.push({c:b.dataset.c,l:b.dataset.l,x:ZONE.x+50+col*82,y:ZONE.y+42+row*26});store.set("espacio",sp);drawPlan()});
+  $("#spn").value=sp.name;$("#spn").oninput=e=>{sp.name=e.target.value;store.set("espacio",sp);const t=$$("#psvg text.lab").pop();t&&(t.textContent=sp.name||"Espacio de bienestar")};
+  let cf=false;$("#spclear").onclick=()=>{if(!cf){cf=true;$("#spclear").textContent="Confirmar: vaciar";setTimeout(()=>{cf=false;$("#spclear").textContent="Vaciar el plano"},3000);return}sp.items=[];store.set("espacio",sp);cf=false;$("#spclear").textContent="Vaciar el plano";drawPlan()};
+  drawPlan();
+  // Caja de calma
+  function kits(){
+    $("#kq").innerHTML=`<button class="chip" data-q="" aria-pressed="${!kq}">Todos los colores</button>`+QORD.map(q=>`<button class="chip" data-q="${q}" aria-pressed="${kq===q}" style="border-left:6px solid var(--${q})">${QI[q].name}</button>`).join("");
+    $$("#kq .chip").forEach(b=>b.onclick=()=>{kq=b.dataset.q||null;kits()});
+    $$("#ka button").forEach(b=>b.onclick=()=>{kage=b.dataset.v;$$("#ka button").forEach(x=>x.setAttribute("aria-pressed",x===b));kits()});
+    const L=KIT.filter(k=>(!kq||k.q.includes(kq))&&(kage==="all"||(()=>{const[a,b]=kage.split("-").map(Number);return !(k.ages[1]<a||k.ages[0]>b)})()));
+    $("#kc").textContent=`${L.length} técnicas`;
+    $("#kits").innerHTML=L.map(k=>`<details class="kit"><summary><span class="sub" style="margin:0">${TYPES[k.type]}</span><b>${k.name}</b><span class="muted" style="font-size:14px">${k.sum}</span>
+      <span class="mini"><span class="pill">${k.ages[0]}–${k.ages[1]} años</span><span class="pill">${k.mins?k.mins+" min":"Rutina"}</span><span class="dots">${k.q.map(q=>`<i style="--q:var(--${q})"></i>`).join("")}</span></span></summary>
+      <ol>${k.steps.map(s=>`<li>${s}</li>`).join("")}</ol><p class="say">«${k.say}»</p><p class="ad">${k.adapt}</p></details>`).join("")||`<div class="empty">No hay técnicas con esos filtros.</div>`;
+  }
+  kits();
+}
+
+/* ---------- 8 Gafas ---------- */
+function viewGafas(app,r){
+  const CASES=[
+   {id:"c1",t:"Un estudiante se levanta constantemente, interrumpe y no termina las actividades."},
+   {id:"c2",t:"Una estudiante casi no habla en clase y evita trabajar en grupo."},
+   {id:"c3",t:"Un estudiante reacciona con gritos cuando cambia la rutina o hay un reemplazo."},
+   {id:"c4",t:"Una estudiante llega sin tareas y se duerme en las primeras horas."}];
+  const COL=[
+   {k:"b",t:"Barreras",q:"¿Qué del entorno, la tarea o la rutina le dificulta participar?",s:["Actividades largas sin pausas","Instrucciones solo orales","Poco movimiento permitido","Mucho ruido o estímulos","Trabajo grupal sin roles claros","Cambios sin aviso","Exposición frente a todos"]},
+   {k:"n",t:"Necesidades",q:"¿Qué podría estar necesitando para aprender?",s:["Moverse","Pausas breves","Instrucciones paso a paso","Sentirse seguro o segura","Anticipar los cambios","Descanso","Vínculo con un adulto"]},
+   {k:"a",t:"Apoyos",q:"¿Qué puedo ofrecer desde el aula?",s:["Dividir la tarea en partes","Darle un rol activo","Apoyo visual de la secuencia","Ubicación cerca del docente","Señal acordada en privado","Pausa activa planificada","Conversar con la familia"]}];
+  const LABEL=/\b(hiperactiv[oa]s?|flojo|floja|problem[aá]tic[oa]|mal ?educad[oa]|maleducad[oa]|tdah|d[eé]ficit|rebelde|desordenad[oa]|caso perdido|no quiere|manipulador[a]?|vag[oa]|terrible|insoportable|mañoso|mañosa|t[ií]mid[oa])\b/i;
+  let all=store.get("gafas",{}),cid="c1",on=true;
+  const get=()=>all[cid]||(all[cid]={b:[],n:[],a:[],ad:{q:"",w:"",h:""}});
+  app.innerHTML=head(r)+`
+   <section class="panel" style="gap:12px"><p class="sub" style="margin:0">Elige un caso</p><div class="chips" id="gc"></div></section>
+   <div class="case" id="gcase"></div>
+   <div id="glab"></div>
+   <div class="lens3" id="gl"></div>
+   <section class="panel">
+     <h3>Mi adaptación concreta</h3>
+     <div class="grid3">
+       <div><label class="f" for="gq">Qué voy a cambiar</label><textarea id="gq" placeholder="Ej.: Le asigno repartir y recoger materiales en cada actividad."></textarea></div>
+       <div><label class="f" for="gw">Cuándo y por cuánto tiempo</label><textarea id="gw" placeholder="Ej.: En las clases de la mañana, durante dos semanas."></textarea></div>
+       <div><label class="f" for="gh">Cómo sabré si funciona</label><textarea id="gh" placeholder="Ej.: Termina al menos una actividad por clase."></textarea></div>
+     </div>
+     <p class="muted" style="font-size:14px">Se guarda automáticamente para cada caso. La adaptación cambia el entorno, no a la persona.</p>
+   </section>`;
+  function draw(){
+    const d=get();
+    $("#gc").innerHTML=CASES.map((c,k)=>`<button class="chip" data-id="${c.id}" aria-pressed="${c.id===cid}">Caso ${k+1}</button>`).join("");
+    $$("#gc .chip").forEach(b=>b.onclick=()=>{cid=b.dataset.id;draw()});
+    $("#gcase").className="case"+(on?" on":"");
+    $("#gcase").innerHTML=`${ICON.gafas}<div><p class="sub" style="margin:0 0 4px">El caso</p><p>«${CASES.find(c=>c.id===cid).t}»</p></div>`;
+    $("#gl").innerHTML=COL.map(c=>`<div class="lens"><h4>${c.t}</h4><p class="q">${c.q}</p>
+      <ul class="notes">${d[c.k].map((x,k)=>`<li><span>${esc(x)}</span><button data-c="${c.k}" data-k="${k}" aria-label="Quitar">✕</button></li>`).join("")}</ul>
+      <form class="addrow" data-c="${c.k}"><input type="text" maxlength="80" placeholder="Agregar…" aria-label="Agregar a ${c.t}"><button class="btn small" type="submit">+</button></form>
+      <div class="chips">${c.s.filter(s=>!d[c.k].includes(s)).map(s=>`<button class="chip" data-c="${c.k}" data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div></div>`).join("");
+    $$("#gl .notes button").forEach(b=>b.onclick=()=>{d[b.dataset.c].splice(+b.dataset.k,1);save();draw()});
+    $$("#gl .chip").forEach(b=>b.onclick=()=>{d[b.dataset.c].push(b.dataset.s);save();draw()});
+    $$("#gl form").forEach(f=>f.onsubmit=e=>{e.preventDefault();const i=f.querySelector("input"),v=i.value.trim();if(!v)return;d[f.dataset.c].push(v);save();draw();$(`#gl form[data-c="${f.dataset.c}"] input`).focus()});
+    $$("#gl form input").forEach(i=>i.oninput=check);
+    $("#gq").value=d.ad.q;$("#gw").value=d.ad.w;$("#gh").value=d.ad.h;
+    check();
+  }
+  function check(){
+    const d=get(),texts=[...d.b,...d.n,...d.a,d.ad.q,d.ad.w,d.ad.h,...$$("#gl form input").map(i=>i.value)].join(" ");
+    const m=texts.match(LABEL);
+    $("#glab").innerHTML=m?`<p class="warn">Aparece «${esc(m[0])}». Es una etiqueta sobre la persona. Con las gafas puestas, describe la conducta y el contexto: «se levanta cuando la tarea dura más de 15 minutos».</p>`:"";
+  }
+  function save(){store.set("gafas",all)}
+  ["q","w","h"].forEach(k=>$("#g"+k).oninput=e=>{get().ad[k]=e.target.value;save();check()});
+  draw();
+}
+
+/* ---------- router ---------- */
+const VIEWS={moodmeter:viewMoodmeter,mindfulness:viewMindfulness,flor:viewFlor,red:viewRed,cnv:viewCnv,normas:viewNormas,espacio:viewEspacio,gafas:viewGafas};
+function route(){
+  cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];
+  const id=forced??(location.hash||"").slice(1),app=$("#app"),r=R.find(x=>x.id===id);
+  if(r&&VIEWS[id]){app.style.setProperty("--c",r.c);VIEWS[id](app,r);document.title="Mochila emocional";}
+  else viewHome(app);
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();const id=a.getAttribute("href").slice(1);
+  try{history.replaceState(null,"","#"+id)}catch(err){}routeTo(id)});
+let forced=null;
+function routeTo(id){forced=id;route();forced=null}
+route();
+</script>
+
+</body>
+</html>
